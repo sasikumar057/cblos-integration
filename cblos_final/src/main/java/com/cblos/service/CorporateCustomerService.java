@@ -1,0 +1,241 @@
+package com.cblos.service;
+
+import com.cblos.dto.RegistrationStatusResponse;
+import com.cblos.model.CorporateCustomer;
+import com.cblos.model.AppUser;
+import com.cblos.model.UserRole;
+import com.cblos.repository.CorporateCustomerRepository;
+import com.cblos.repository.AppUserRepository;
+import com.cblos.security.AccessControlService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
+
+@Service
+public class CorporateCustomerService {
+
+    @Autowired
+    private CorporateCustomerRepository customerRepository;
+
+    @Autowired
+    private AppUserRepository userRepository; 
+
+    @Autowired
+    private AccessControlService accessControl;
+    
+    @Autowired
+    private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+
+    //on board the new customer 
+    public CorporateCustomer onboardCustomer(CorporateCustomer customer) {
+        if (customerRepository.findByTaxId(customer.getTaxId()).isPresent()) {
+            throw new RuntimeException("Validation Failed: Customer with this Tax ID already exists.");
+        }
+        if (userRepository.findByEmail(customer.getCompanyEmail()).isPresent()) {
+            throw new RuntimeException("Validation Failed: A login account with this email already exists.");
+        }
+        String registrationPassword = customer.getTempRegistrationPassword();
+        if (registrationPassword.length() < 8) {
+    throw new IllegalArgumentException("Validation Failed: Registration password cannot be less than 5 characters.");
+}
+if (registrationPassword == null || registrationPassword.isBlank()) {
+    throw new IllegalArgumentException("Validation Failed: Registration password cannot be blank.");
+}
+boolean hasUppercase = false;
+boolean hasSpecialChar = false;
+for (char ch : registrationPassword.toCharArray()) {
+    if (Character.isUpperCase(ch)) {
+        hasUppercase = true;
+    }
+
+    if (!Character.isLetterOrDigit(ch)) {
+        hasSpecialChar = true;
+    }
+}
+if(!hasUppercase || !hasSpecialChar){
+    throw new IllegalArgumentException("Validation Failed: Registration password should contain atleast one number, uppercase and special character");
+}
+ 
+        
+        customer.setStatus("PENDING_VERIFICATION");
+        customer.setRejectionReason(null);
+        customer.setTempRegistrationPassword(encodeIfNeeded(registrationPassword));
+
+        CorporateCustomer savedCustomer = customerRepository.save(customer);
+        System.out.println("Registered credential vault for " + savedCustomer.getCompanyEmail() + " [Dashboard Status: LOCKED]");
+        return savedCustomer;
+    }
+
+   // allow customer to update the details
+   public CorporateCustomer updatePendingCustomerDetails(Integer id, CorporateCustomer updatedData) {
+    CorporateCustomer existingCustomer = customerRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Corporate Customer profile not found"));
+
+    String currentStatus = existingCustomer.getStatus() != null ? existingCustomer.getStatus().toUpperCase() : "";
+
+    if (!"PENDING_VERIFICATION".equals(currentStatus) && !currentStatus.startsWith("REJECTED")) {
+        throw new IllegalStateException("Profile modification locked: This profile has already been approved and cannot be edited directly.");
+    }
+
+    if (updatedData.getCompanyName() != null) existingCustomer.setCompanyName(updatedData.getCompanyName());
+    if (updatedData.getPhoneNumber() != null) existingCustomer.setPhoneNumber(updatedData.getPhoneNumber());
+    if (updatedData.getBusinessAddress() != null) existingCustomer.setBusinessAddress(updatedData.getBusinessAddress());
+    if (updatedData.getIndustryType() != null) existingCustomer.setIndustryType(updatedData.getIndustryType());
+
+    if (updatedData.getTaxId() != null && !updatedData.getTaxId().equalsIgnoreCase(existingCustomer.getTaxId())) {
+        if (customerRepository.findByTaxId(updatedData.getTaxId()).isPresent()) {
+            throw new RuntimeException("Validation Failed: Customer with this Tax ID already exists.");
+        }
+        existingCustomer.setTaxId(updatedData.getTaxId());
+    }
+
+    existingCustomer.setStatus("PENDING_VERIFICATION");
+    existingCustomer.setRejectionReason(null); 
+
+    return customerRepository.save(existingCustomer);
+}
+
+
+    @Transactional 
+    public CorporateCustomer verifyCustomerLegitimacy(Integer customerId, String reviewStatus, String reason) {
+        CorporateCustomer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new RuntimeException("Corporate Customer profile not found"));
+
+        if ("APPROVE".equalsIgnoreCase(reviewStatus)) {
+            customer.setStatus("ACTIVE"); 
+            customer.setRejectionReason(null); 
+
+            AppUser userAccount = userRepository.findByCorporateCustomerId(customerId)
+                    .or(() -> userRepository.findByEmail(customer.getCompanyEmail()))
+                    .orElseGet(AppUser::new);
+            userAccount.setEmail(customer.getCompanyEmail());
+            userAccount.setRole(com.cblos.model.UserRole.CUSTOMER);
+            userAccount.setCorporateCustomerId(customer.getId());
+
+            if (userAccount.getPassword() == null || userAccount.getPassword().isBlank()) {
+                String storedPassword = customer.getTempRegistrationPassword();
+                if (storedPassword == null || storedPassword.isBlank()) {
+                    throw new IllegalStateException("Registration password missing for customer ID: " + customerId);
+                }
+                userAccount.setPassword(encodeIfNeeded(storedPassword));
+            }
+
+            userRepository.save(userAccount);
+            customer.setTempRegistrationPassword(null);
+
+        } else if ("REJECT".equalsIgnoreCase(reviewStatus)) {
+            customer.setStatus("REJECTED_INVALID_DOCUMENTS"); 
+            customer.setRejectionReason(reason); 
+            
+        } else {
+            throw new IllegalArgumentException("Validation Failed: Invalid review status action string '" + reviewStatus + "'. Use APPROVE or REJECT.");
+        }
+
+        return customerRepository.save(customer);
+    }
+
+    public CorporateCustomer getCustomerById(Integer id) {
+        accessControl.ensureCustomerOwnsCustomerRecord(id);
+        return customerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Corporate Customer profile not found"));
+    }
+
+    public List<CorporateCustomer> getAllCustomers() {
+        return customerRepository.findAll();
+    }
+
+    public RegistrationStatusResponse getRegistrationStatusByEmail(String email) {
+    if (email == null || email.isBlank()) {
+        throw new IllegalArgumentException("Validation Failed: Email is required.");
+    }
+
+    String normalizedEmail = email.trim();
+    return customerRepository.findByCompanyEmailIgnoreCase(normalizedEmail)
+            .map(this::toRegistrationStatus)
+            .orElseGet(() -> new RegistrationStatusResponse(
+                false,           
+                null,             
+                "NOT_FOUND",      
+                normalizedEmail,  
+                null,            
+                null,             
+                null,             
+                null,             
+                null,             
+                null,             
+                "No registration found for this email.", 
+                false             
+            ));
+}
+
+    @Transactional
+    public void resetCustomerPassword(String email, String newPassword) {
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("Validation Failed: Email is required.");
+        }
+        if (newPassword == null || newPassword.isBlank() || newPassword.length() < 6) {
+            throw new IllegalArgumentException("Validation Failed: New password must be at least 6 characters.");
+        }
+
+        String normalizedEmail = email.trim();
+        CorporateCustomer customer = customerRepository.findByCompanyEmailIgnoreCase(normalizedEmail)
+                .orElseThrow(() -> new IllegalArgumentException("Customer account not found."));
+
+        String status = customer.getStatus() == null ? "" : customer.getStatus().trim().toUpperCase();
+        if (!"ACTIVE".equals(status) && !"APPROVED".equals(status)) {
+            throw new IllegalStateException("Password reset is available only after customer registration is approved.");
+        }
+
+        AppUser user = userRepository.findByCorporateCustomerId(customer.getId())
+                .or(() -> userRepository.findByEmail(customer.getCompanyEmail()))
+                .orElseThrow(() -> new IllegalStateException("Customer login account is not active yet."));
+
+        if (user.getRole() != UserRole.CUSTOMER) {
+            throw new IllegalArgumentException("This reset flow is only for customer accounts.");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+
+    private String encodeIfNeeded(String password) {
+        return isBCryptHash(password) ? password : passwordEncoder.encode(password);
+    }
+
+    private boolean isBCryptHash(String password) {
+        return password != null && password.matches("^\\$2[aby]\\$\\d{2}\\$.{53}$");
+    }
+private RegistrationStatusResponse toRegistrationStatus(CorporateCustomer customer) {
+    String status = customer.getStatus() == null ? "UNKNOWN" : customer.getStatus();
+    String normalizedStatus = status.trim().toUpperCase();
+    boolean approved = "ACTIVE".equals(normalizedStatus) || "APPROVED".equals(normalizedStatus);
+
+    String message;
+    if (approved) {
+        message = "Your registration is approved. You can login and continue the loan journey.";
+    } else if ("PENDING_VERIFICATION".equals(normalizedStatus)) {
+        message = "Your registration is pending admin verification.";
+    } else if (normalizedStatus.startsWith("REJECTED")) {
+        message = "Your registration needs correction before approval.";
+    } else {
+        message = "Your registration is currently marked as " + status + ".";
+    }
+
+    return new RegistrationStatusResponse(
+            true,                       
+            customer.getId(),               
+            status,                          
+            customer.getCompanyEmail(),       
+            customer.getCompanyName(),       
+            customer.getTaxId(),              
+            customer.getPhoneNumber(),      
+            customer.getIndustryType(),       
+            customer.getBusinessAddress(),   
+            customer.getRejectionReason(),    
+            message,                         
+            approved                         
+    );
+}
+}
+

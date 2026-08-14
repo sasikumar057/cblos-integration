@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CBLOS - Corporate Manager Workspace</title>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+	rel="stylesheet">
+<style>
+body {
+	background-color: #f4f6f9;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+		sans-serif;
+}
+
+.manager-navbar {
+	background-color: #0b132b;
+	border-bottom: 3px solid #6fffe9;
+}
+
+.workdesk-card {
+	border: none;
+	border-radius: 8px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.pipeline-table tbody tr {
+	cursor: pointer;
+	transition: background-color 0.15s;
+}
+
+.pipeline-table tbody tr:hover {
+	background-color: #f1f5f9;
+}
+
+.pipeline-table tbody tr.table-active {
+	background-color: #e2e8f0;
+	border-left: 4px solid #0b132b;
+}
+
+.approval-panel {
+	background-color: #fff;
+	border-radius: 8px;
+	border-left: 4px solid #198754;
+}
+
+.file-badge {
+	font-size: 0.8rem;
+	border-radius: 4px;
+	background-color: #f8f9fa;
+	border: 1px solid #dee2e6;
+}
+</style>
+</head>
+<body>
+
+	<nav
+		class="navbar navbar-dark manager-navbar sticky-top py-2 shadow-sm">
+		<div class="container-fluid px-4">
+			<a class="navbar-brand d-flex align-items-center" href="#"> <i
+				class="bi bi-bank2 text-info me-2 fs-4"></i> <span
+				class="fw-bold text-uppercase tracking-wider text-white"
+				style="font-size: 1.1rem;">CB-LOS Executive Dashboard</span>
+			</a>
+			<div class="d-flex align-items-center gap-3 text-light">
+				<span class="small text-muted"><i
+					class="bi bi-shield-lock-fill text-warning me-1"></i> Authority: <strong
+					class="text-white">CREDIT_MANAGER</strong></span> <span
+					class="border-start border-secondary h-25 mx-1"></span> <span
+					class="small text-muted">Active Sign-off Officer:</span> <span
+					class="fw-bold text-info" th:text="${managerName}">Senior
+					Credit Manager</span>
+			</div>
+		</div>
+	</nav>
+
+	<div class="container-fluid px-4 my-4">
+
+		<div class="row g-3 mb-4">
+			<div class="col-md-4">
+				<div class="card workdesk-card p-3 bg-white text-dark">
+					<div class="d-flex justify-content-between align-items-center">
+						<div>
+							<h6 class="text-uppercase text-muted small fw-bold mb-1">Escalated
+								Pending Review</h6>
+							<h3 class="fw-bold mb-0 text-warning" th:text="${pendingCount}">0</h3>
+						</div>
+						<i class="bi bi-hourglass-split text-warning-subtle fs-1"></i>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="card workdesk-card p-3 bg-white text-dark">
+					<div class="d-flex justify-content-between align-items-center">
+						<div>
+							<h6 class="text-uppercase text-muted small fw-bold mb-1">Disbursed
+								This Month</h6>
+							<h3 class="fw-bold mb-0 text-success">₹4.85 Crores</h3>
+						</div>
+						<i class="bi bi-cash-coin text-success-subtle fs-1"></i>
+					</div>
+				</div>
+			</div>
+		<div class="col-md-4">
+				<div class="card workdesk-card p-3 bg-white text-dark">
+					<div class="d-flex justify-content-between align-items-center">
+						<div>
+							<h6 class="text-uppercase text-muted small fw-bold mb-1">System
+								Compliance SLA</h6>
+							<h3 class="fw-bold mb-0 text-dark">100% Secure</h3>
+						</div>
+						<i class="bi bi-patch-check-fill text-info-subtle fs-1"></i>
+					</div>
+				</div>
+			</div>  
+		</div>
+
+		<div class="row g-4">
+
+			<div class="col-lg-6">
+				<div class="card workdesk-card p-4 bg-white h-100">
+					<h5 class="fw-bold text-dark mb-3 border-bottom pb-2">
+						<i class="bi bi-envelope-paper-fill text-warning me-2"></i>
+						Escalated Sign-Off Queue
+					</h5>
+
+					<div class="table-responsive">
+						<table class="table pipeline-table align-middle mb-0">
+							<thead class="table-light text-secondary small text-uppercase">
+								<tr>
+									<th>Application ID</th>
+									<th>Corporate Client</th>
+									<th>Facility</th>
+									<th>Amount</th>
+									<th>Risk Status</th>
+								</tr>
+							</thead>
+							<tbody class="small text-dark">
+								<tr th:if="${#lists.isEmpty(managerQueue)}">
+									<td colspan="5" class="text-center py-5 text-muted italic">
+										<i class="bi bi-check-all text-success fs-3 d-block mb-2"></i>
+										Outstanding! No applications are waiting for managerial
+										signature sign-off.
+									</td>
+								</tr>
+
+								<tr th:each="app : ${managerQueue}"
+									th:classappend="${selectedApp != null && selectedApp.applicationId == app.applicationId} ? 'table-active fw-bold' : ''"
+									th:onclick="'location.href=\'/customer/dashboard/manager/workdesk/' + ${managerId} + '?selectedAppId=' + ${app.applicationId} + '\''">
+									<td><strong class="font-monospace text-dark"
+										th:text="'#' + ${app.applicationId}">#12</strong></td>
+									<td><span class="fw-bold d-block"
+										th:text="${app.customer.companyName}">TechCorp Ltd</span> <span
+										class="text-muted font-monospace" style="font-size: 0.75rem;"
+										th:text="'Client ID: ' + ${app.customer.id}">Client ID:
+											05</span></td>
+									<td><span class="badge bg-light text-dark border"
+										th:text="${app.loanType}">Working Capital</span></td>
+									<td class="fw-bold text-dark"
+										th:text="'₹' + ${#numbers.formatDecimal(app.loanAmount, 1, 'COMMA', 2, 'POINT')}">₹50,00,000.00</td>
+									<td><span class="badge bg-warning text-dark border px-2">PENDING_AUTH</span></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-lg-6">
+
+				<div th:if="${selectedApp == null}"
+					class="card workdesk-card p-5 bg-white text-center h-100 justify-content-center">
+					<i class="bi bi-shield-lock text-muted mb-3"
+						style="font-size: 3rem;"></i>
+					<h5 class="fw-bold text-dark">Select a Package for Final
+						Authorization</h5>
+					<p class="text-muted small">Choose an item from the escalated
+						pipeline queue left panel to instantly run compliance checks and
+						load the attached verification documentation.</p>
+				</div>
+
+				<div th:if="${selectedApp != null}" id="activeUnderwritingDeck"
+					class="card workdesk-card p-4 bg-white h-100">
+					<div
+						class="mb-3 border-bottom pb-2 d-flex justify-content-between align-items-center">
+						<h5 class="fw-bold text-dark mb-0">
+							<i class="bi bi-file-earmark-ruled text-success me-2"></i>
+							Executive Portfolio Dossier
+						</h5>
+						<span class="badge bg-dark font-monospace px-2 py-1"
+							th:text="'REVIEW ID #' + ${selectedApp.applicationId}">REVIEW
+							ID #12</span>
+					</div>
+
+					<div class="row g-3 bg-light p-3 rounded mb-4 border small mx-0">
+						<div class="col-6">
+							<span class="text-muted d-block mb-1">Corporate Registrant</span>
+							<strong class="text-dark d-block"
+								th:text="${selectedApp.customer.companyName}">TechCorp
+								Ltd</strong>
+						</div>
+						<div class="col-6">
+							<span class="text-muted d-block mb-1">Requested Funding
+								Facility</span> <strong class="text-dark d-block"
+								th:text="${selectedApp.loanType}">Working Capital</strong>
+						</div>
+						<div class="col-6">
+							<span class="text-muted d-block mb-1">Principal Requested
+								Allocation</span> <strong
+								class="text-dark d-block text-primary fw-bold"
+								th:text="'₹' + ${#numbers.formatDecimal(selectedApp.loanAmount, 1, 'COMMA', 2, 'POINT')}">₹50,00,000.00</strong>
+						</div>
+						<div class="col-6">
+							<span class="text-muted d-block mb-1">Assigned Collateral
+								Evaluation</span> <strong
+								class="text-dark d-block text-success fw-bold"
+								th:text="'₹' + ${#numbers.formatDecimal(collateralValue, 1, 'COMMA', 2, 'POINT')}">₹75,00,000.00</strong>
+						</div>
+						<div class="col-12 border-top pt-2 mt-2">
+							<span class="text-muted me-2">Evaluated Coverage Margin
+								Metrics:</span> <span class="badge bg-success px-2 py-1"
+								th:text="${coverageMargin} + '% (PASSED COMPLIANCE)'">150%
+								(PASSED)</span>
+						</div>
+					</div>
+
+					<h6 class="fw-bold text-secondary small text-uppercase mb-2">
+						<i class="bi bi-eye-fill text-primary"></i> Live Document Audit
+						Viewport
+					</h6>
+					<div class="p-2 border rounded bg-white mb-4 shadow-inner">
+						<div th:if="${activeDoc != null}">
+							<div
+								class="d-flex justify-content-between align-items-center file-badge p-2 mb-2 bg-light">
+								<span class="small fw-bold text-dark font-monospace"
+									th:text="${activeDoc.fileName}">Verification_File.pdf</span> <a
+									th:href="@{/customer/dashboard/manager/document/view/{id}(id=${activeDoc.documentId})}"
+									target="_blank" class="btn btn-xs btn-outline-dark px-2 py-0"
+									style="font-size: 0.75rem;"><i
+									class="bi bi-box-arrow-up-right"></i> Open External Tab</a>
+							</div>
+							<div class="ratio ratio-4x3 border rounded bg-light"
+								style="min-height: 320px;">
+								<iframe
+									th:src="@{/customer/dashboard/manager/document/view/{id}(id=${activeDoc.documentId})}"
+									type="application/pdf" width="100%" height="100%"></iframe>
+							</div>
+						</div>
+						<div th:if="${activeDoc == null}"
+							class="p-3 text-center text-muted small bg-light rounded">
+							<i class="bi bi-exclamation-triangle-fill text-warning me-1"></i>
+							No validation attachments are linked to this credit line package.
+						</div>
+					</div>
+
+					<h6 class="fw-bold text-secondary small text-uppercase mb-2">
+						<i class="bi bi-pencil-square text-success"></i> Final Managerial
+						Sign-Off Action
+					</h6>
+					<div class="approval-panel p-3 border rounded shadow-sm bg-light">
+						<form th:action="@{/customer/dashboard/manager/authorize}"
+							method="POST">
+
+							<input type="hidden" name="applicationId"
+								th:value="${selectedApp.applicationId}"> <input
+								type="hidden" name="managerId" th:value="${managerId}">
+
+							<div class="mb-3">
+								<label for="managerNotes"
+									class="form-label small fw-bold text-muted mb-1">Executive
+									Credit Override & Audit Justification Notes *</label>
+								<textarea id="managerNotes" name="managerNotes"
+									class="form-control form-control-sm" rows="2" required>Review of financials complete. Collateral coverage parameters are within banking policy bounds. Final approval granted.</textarea>
+							</div>
+
+							<div class="d-flex justify-content-end gap-2 pt-2 border-top">
+								<button type="submit" name="actionOutcome" value="REJECT"
+									class="btn btn-sm btn-danger fw-bold shadow-sm px-3">
+									<i class="bi bi-x-circle-fill me-1"></i> Deny Facility Request
+								</button>
+								<button type="submit" name="actionOutcome" value="APPROVE"
+									class="btn btn-sm btn-success fw-bold shadow-sm px-4">
+									<i class="bi bi-check-all me-1"></i> Approve & Disburse Capital
+								</button>
+							</div>
+						</form>
+					</div>
+
+				</div>
+
+			</div>
+		</div>
+
+	</div>
+</body>
+</html>

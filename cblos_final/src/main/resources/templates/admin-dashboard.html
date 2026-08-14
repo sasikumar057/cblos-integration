@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrustEdge Commercial Bank - Management Console</title>
+<!-- Bootstrap 5 CSS Framework -->
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<!-- Bootstrap System Icons -->
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+	rel="stylesheet">
+<style>
+body {
+	background-color: #f8f9fa;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+		sans-serif;
+}
+
+.admin-navbar {
+	background-color: #0b132b;
+	border-bottom: 3px solid #3a506b;
+}
+
+.metric-card {
+	border: none;
+	border-radius: 6px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.table-workspace {
+	background: #ffffff;
+	border-radius: 8px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+	border: 1px solid #e3e6f0;
+}
+
+.form-panel {
+	background: #ffffff;
+	border-radius: 8px;
+	border: 1px solid #e3e6f0;
+}
+
+.font-monospace {
+	font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+		monospace !important;
+}
+
+.simulation-banner {
+	background-color: #e8f0fe;
+	color: #1967d2;
+	font-weight: 500;
+	font-size: 0.85rem;
+}
+
+/* 🟢 NEW: Smooth transit effects for interactive utility logout toggles */
+.btn-nav-logout {
+	background: transparent;
+	border: 1px solid rgba(220, 53, 69, 0.4);
+	color: #ea868f;
+	font-weight: 600;
+	font-size: 0.75rem;
+	transition: all 0.2s ease-in-out;
+}
+.btn-nav-logout:hover {
+	background-color: #dc3545;
+	color: #ffffff;
+	border-color: #dc3545;
+	transform: translateY(-1px);
+}
+</style>
+</head>
+<body>
+
+	<!-- 🏛️ BANK MANAGEMENT HEADER NAVBAR -->
+	<nav class="navbar navbar-dark admin-navbar sticky-top py-2">
+		<div class="container">
+			<a class="navbar-brand d-flex align-items-center" href="#"> <i
+				class="bi bi-shield-lock-fill text-warning me-2 fs-4"></i>
+				<div>
+					<span class="fw-bold tracking-wider text-uppercase d-block mb-0"
+						style="font-size: 1.1rem;">TrustEdge Commercial</span> <span
+						class="text-muted small d-block"
+						style="font-size: 0.75rem; margin-top: -4px;">Internal
+						Central Administrator Console</span>
+				</div>
+			</a>
+			
+			<!-- 🟢 UPDATED: Right Alignment Layout containing Profile Badge & Instant Logout Engine -->
+			<div class="d-flex align-items-center gap-2">
+				<span
+					class="badge bg-danger-subtle text-danger fw-bold px-3 py-2 border border-danger-subtle">
+					<i class="bi bi-person-badge-fill me-1"></i> Root Administrator
+				</span>
+				
+				<!-- Secure Spring Security Post Trigger for Session Disconnects -->
+				<form th:action="@{/logout}" method="POST" class="m-0 p-0">
+					<button type="submit" class="btn btn-sm btn-nav-logout px-3 py-1.5 rounded text-uppercase tracking-wide shadow-sm">
+						<i class="bi bi-box-arrow-right me-1"></i> Sign Out
+					</button>
+				</form>
+			</div>
+		</div>
+	</nav>
+
+	<!-- 🖥️ DATA SIMULATION ALERT BAR (Shows only when backend lists are missing) -->
+	<div th:if="${pendingCustomers == null && internalStaff == null}"
+		class="simulation-banner text-center py-2 border-bottom">
+		<i class="bi bi-cpu-fill me-1"></i> **Development Mode Active:** No
+		controller attributes detected. Displaying standalone enterprise
+		simulation placeholders.
+	</div>
+
+	<div class="container my-4">
+
+		<!-- [SECTION 1: SYSTEM WORKSPACE HIGHLIGHTS] -->
+		<div class="row g-3 mb-4">
+			<div class="col-md-6">
+				<div
+					class="card metric-card bg-white p-3 border-start border-warning border-4">
+					<div class="d-flex justify-content-between align-items-center">
+						<div>
+							<h6 class="text-uppercase text-muted small fw-bold mb-1">Registration
+								Pipeline</h6>
+							<h3 class="fw-bold text-dark mb-0"
+								id="pendingCount"
+								th:text="${pendingCustomers != null ? #lists.size(pendingCustomers) : '3'}">3</h3>
+						</div>
+						<i class="bi bi-building-dash text-warning fs-1"></i>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div
+					class="card metric-card bg-white p-3 border-start border-info border-4">
+					<div class="d-flex justify-content-between align-items-center">
+						<div>
+							<h6 class="text-uppercase text-muted small fw-bold mb-1">Active
+								Staff Operations Workforce</h6>
+							<h3 class="fw-bold text-dark mb-0"
+								id="staffCount"
+								th:text="${internalStaff != null ? #lists.size(internalStaff) : '2'}">2</h3>
+						</div>
+						<i class="bi bi-people-fill text-info fs-1"></i>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="table-workspace p-4 mb-5">
+			<h5 class="fw-bold text-dark mb-3 d-flex align-items-center">
+				<i class="bi bi-hourglass-split text-warning me-2"></i> Onboarding
+				Verification & Legitimacy Queue
+			</h5>
+			<div class="table-responsive">
+				<table class="table table-hover align-middle mb-0">
+					<thead class="table-light text-secondary small text-uppercase">
+						<tr>
+							<th>ID</th>
+							<th>Company Details</th>
+							<th>Tax ID / PAN</th>
+							<th>Industry Sector</th>
+							<th>Contact Info</th>
+							<th>Credentials</th>
+							<th>Pipeline Status</th>
+							<th class="text-end" style="min-width: 200px;">Review
+								Actions</th>
+						</tr>
+					</thead>
+					<tbody class="small">
+
+						<th:block th:if="${pendingCustomers != null}">
+							<tr th:if="${#lists.isEmpty(pendingCustomers)}">
+								<td colspan="8" class="text-center py-4 text-muted italic">
+									<i class="bi bi-check-circle text-success me-1"></i> Excellent!
+									The corporate onboarding verification queue is completely
+									clear.
+								</td>
+							</tr>
+							<tr th:each="cust : ${pendingCustomers}" th:id="'customer-row-' + ${cust.id}">
+								<td><strong class="font-monospace text-secondary"
+									th:text="'#CORP-' + ${cust.id}">#CORP-101</strong></td>
+								<td><span class="fw-bold text-dark d-block"
+									th:text="${cust.companyName}">Example Corp</span> <span
+									class="text-muted small d-block"
+									th:text="${cust.businessAddress}">123 Business Rd</span></td>
+								<td class="font-monospace fw-bold" th:text="${cust.taxId}">TAX829104</td>
+								<td><span class="badge bg-light text-dark border"
+									th:text="${cust.industryType != null ? cust.industryType : 'Unspecified'}">Technology</span>
+								</td>
+								<td><span class="d-block fw-bold"
+									th:text="${cust.companyEmail}">email@corp.com</span> <span
+									class="text-muted small"
+									th:text="${cust.phoneNumber != null ? cust.phoneNumber : 'No Phone'}">9999999999</span>
+								</td>
+								<td>
+									<span th:if="${cust.registrationPasswordConfigured}"
+										class="badge bg-success-subtle text-success border border-success-subtle">
+										<i class="bi bi-key-fill me-1"></i> Captured
+									</span>
+									<span th:unless="${cust.registrationPasswordConfigured}"
+										class="badge bg-danger-subtle text-danger border border-danger-subtle">
+										<i class="bi bi-exclamation-triangle-fill me-1"></i> Missing
+									</span>
+								</td>
+								<td><span
+									class="badge bg-warning-subtle text-warning border border-warning-subtle text-dark"
+									th:text="${cust.status}">PENDING_VERIFICATION</span></td>
+								<td class="text-end">
+									<button
+										class="btn btn-sm btn-success fw-bold me-1 review-trigger-btn"
+										th:data-id="${cust.id}" th:data-name="${cust.companyName}"
+										data-approve="true" onclick="handleReviewButtonClick(this)">
+										<i class="bi bi-check-lg"></i> Approve
+									</button>
+
+									<button
+										class="btn btn-sm btn-outline-danger fw-bold review-trigger-btn"
+										th:data-id="${cust.id}" th:data-name="${cust.companyName}"
+										data-approve="false" onclick="handleReviewButtonClick(this)">
+										<i class="bi bi-x-lg"></i> Reject
+									</button>
+								</td>
+							</tr>
+						</th:block>
+
+						<th:block th:if="${pendingCustomers == null}">
+							<tr>
+								<td><strong class="font-monospace text-secondary">#CORP-901</strong></td>
+								<td><span class="fw-bold text-dark d-block">AeroSpace
+										Dynamics India</span> <span class="text-muted small d-block">Plot
+										45, SIPCOT IT Park, Siruseri, Chennai</span></td>
+								<td class="font-monospace fw-bold">AAACA1102F</td>
+								<td><span class="badge bg-light text-dark border">Manufacturing</span></td>
+								<td><span class="d-block fw-bold">finance@aerospace.co.in</span>
+									<span class="text-muted small">+91 44 2819 1102</span></td>
+								<td><span
+									class="badge bg-warning-subtle text-warning border border-warning-subtle text-dark">PENDING_VERIFICATION</span></td>
+								<td class="text-end">
+									<button
+										class="btn btn-sm btn-success fw-bold me-1 review-trigger-btn"
+										data-id="901" data-name="AeroSpace Dynamics India"
+										data-approve="true" onclick="handleReviewButtonClick(this)">
+										<i class="bi bi-check-lg"></i> Approve
+									</button>
+									<button
+										class="btn btn-sm btn-outline-danger fw-bold review-trigger-btn"
+										data-id="901" data-name="AeroSpace Dynamics India"
+										data-approve="false" onclick="handleReviewButtonClick(this)">
+										<i class="bi bi-x-lg"></i> Reject
+									</button>
+								</td>
+							</tr>
+							<tr>
+								<td><strong class="font-monospace text-secondary">#CORP-902</strong></td>
+								<td><span class="fw-bold text-dark d-block">Delta
+										Logistics Hubs</span> <span class="text-muted small d-block">PT
+										Road, Thoraipakkam, Chennai</span></td>
+								<td class="font-monospace fw-bold">ABOPA4419M</td>
+								<td><span class="badge bg-light text-dark border">Logistics</span></td>
+								<td><span class="d-block fw-bold">onboarding@deltalog.com</span>
+									<span class="text-muted small">+91 44 4321 0987</span></td>
+								<td><span
+									class="badge bg-warning-subtle text-warning border border-warning-subtle text-dark">PENDING_VERIFICATION</span></td>
+								<td class="text-end">
+									<button
+										class="btn btn-sm btn-success fw-bold me-1 review-trigger-btn"
+										data-id="902" data-name="Delta Logistics Hubs"
+										data-approve="true" onclick="handleReviewButtonClick(this)">
+										<i class="bi bi-check-lg"></i> Approve
+									</button>
+									<button
+										class="btn btn-sm btn-outline-danger fw-bold review-trigger-btn"
+										data-id="902" data-name="Delta Logistics Hubs"
+										data-approve="false" onclick="handleReviewButtonClick(this)">
+										<i class="bi bi-x-lg"></i> Reject
+									</button>
+								</td>
+							</tr>
+						</th:block>
+
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<!-- [ DYNAMIC UNDERWRITING EXPANSION BOX FOR ACTION DECISIONS ] -->
+		<div id="reviewBox" class="card border-0 shadow-sm mb-5 d-none">
+			<div id="reviewHeader" class="card-header text-white">
+				<h5 class="mb-0 small fw-bold" id="reviewTitle">Process Action</h5>
+			</div>
+			<div class="card-body bg-white">
+				<form id="reviewForm" method="POST" action="POST">
+					<input type="hidden" id="reviewApproveParam" name="approve"
+						value="">
+
+					<div class="mb-3" id="rejectionReasonWrapper">
+						<label for="reasonField"
+							class="form-label small fw-bold text-danger">Specify
+							Rejection & Failure Grounds *</label>
+						<textarea class="form-control" id="reasonField" name="reason"
+							rows="2"
+							placeholder="e.g., GSTIN credentials mismatch or invalid company business filing signatures..."></textarea>
+					</div>
+
+					<div class="text-end">
+						<button type="button" class="btn btn-sm btn-light border me-1"
+							onclick="closeReviewBox()">Cancel</button>
+						<button type="submit" id="reviewSubmitBtn"
+							class="btn btn-sm text-white fw-bold px-4">Confirm
+							System Execution</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<!-- [SECTION 3: STAFF PROVISIONING OPERATIONS CENTER] -->
+		<div class="row g-4">
+
+			<div class="col-md-5">
+				<div class="form-panel p-4 bg-white shadow-sm">
+					<h5 class="fw-bold text-dark mb-3 border-bottom pb-2">
+						<i class="bi bi-person-plus-fill text-primary me-1"></i> Provision
+						Bank Staff Profile
+					</h5>
+
+					<form id="staffOnboardForm" th:action="@{/admin/staff/onboard}" method="POST">
+
+						<div class="mb-3">
+							<label for="employeeId"
+								class="form-label small fw-bold text-muted">Corporate
+								Employee ID</label> <input type="text" id="employeeId" name="employeeId"
+								class="form-control form-control-sm"
+								placeholder="e.g. TE-OFF-092" required>
+						</div>
+
+						<div class="mb-3">
+							<label for="staffName"
+								class="form-label small fw-bold text-muted">Full
+								Employee Name</label> <input type="text" id="staffName" name="name"
+								class="form-control form-control-sm"
+								placeholder="e.g. Ramesh Kumar" required>
+						</div>
+
+						<div class="mb-3">
+							<label for="employeeEmail"
+								class="form-label small fw-bold text-muted">Official
+								Banking Email Address (Username)</label> <input type="email"
+								id="employeeEmail" name="employeeEmail"
+								class="form-control form-control-sm"
+								placeholder="e.g. ramesh@trustedge.com" required>
+						</div>
+
+						<div class="row">
+							<div class="col-6 mb-3">
+								<label for="tempStaffPassword"
+									class="form-label small fw-bold text-muted">Temporary
+									Password</label> <input type="password" id="password" name="password"
+									class="form-control form-control-sm" placeholder="••••••••"
+									required>
+							</div>
+							<div class="col-6 mb-3">
+								<label for="role" class="form-label small fw-bold text-muted">Access
+									Clearance Role</label> <select id="role" name="role"
+									class="form-select form-select-sm" required>
+									<option value="OFFICER">OFFICER (Credit Analyst)</option>
+									<option value="MANAGER">MANAGER (Final Approval
+										Sign-Off)</option>
+								</select>
+							</div>
+						</div>
+
+						<button type="submit"
+							class="btn btn-primary btn-sm w-100 fw-bold mt-2">Onboard
+							& Secure Credentials</button>
+					</form>
+				</div>
+			</div>
+
+			<div class="col-md-7">
+				<div class="table-workspace p-4 bg-white shadow-sm h-100">
+					<h5 class="fw-bold text-dark mb-3 border-bottom pb-2">
+						<i class="bi bi-briefcase-fill text-info me-1"></i> Active
+						Operations Workforce & Balance
+					</h5>
+					<div class="table-responsive">
+						<table class="table table-sm table-hover align-middle mb-0">
+							<thead class="table-light text-secondary small text-uppercase">
+								<tr>
+									<th>ID</th>
+									<th>Staff Name</th>
+									<th>Clearance</th>
+									<th class="text-center">Active Pipelines</th>
+								</tr>
+							</thead>
+							<tbody id="staffTableBody" class="small text-dark">
+
+								<th:block th:if="${internalStaff != null}">
+									<tr th:if="${#lists.isEmpty(internalStaff)}">
+										<td colspan="4" class="text-center py-3 text-muted italic">No
+											internal staff profiles configured yet.</td>
+									</tr>
+									<tr th:each="staff : ${internalStaff}">
+										<td class="font-monospace text-muted"
+											th:text="${staff.employeeId}">TE-OFF-01</td>
+										<td><span class="fw-bold" th:text="${staff.name}">Staff
+												Worker</span> <span class="text-muted d-block"
+											style="font-size: 0.75rem;"
+											th:text="${staff.role == 'MANAGER' ? 'Risk Assessment Director' : 'Credit Analyst'}">Analyst</span>
+										</td>
+										<td><span class="badge rounded-pill"
+											th:classappend="${staff.role == 'MANAGER' ? 'bg-danger' : 'bg-primary'}"
+											th:text="${staff.role}">OFFICER</span></td>
+										<td class="text-center fw-bold"><span
+											class="badge bg-light text-dark border font-monospace px-2"
+											th:text="${staff.activeApplicationCount}">0</span></td>
+									</tr>
+								</th:block>
+
+								<th:block th:if="${internalStaff == null}">
+									<tr>
+										<td class="font-monospace text-muted">TE-OFF-041</td>
+										<td><span class="fw-bold">Ananya Rao</span> <span
+											class="text-muted d-block" style="font-size: 0.75rem;">Credit
+												Analyst</span></td>
+										<td><span class="badge rounded-pill bg-primary">OFFICER</span></td>
+										<td class="text-center fw-bold"><span
+											class="badge bg-light text-dark border font-monospace px-2">4</span></td>
+									</tr>
+									<tr>
+										<td class="font-monospace text-muted">TE-MGR-012</td>
+										<td><span class="fw-bold">Sanjay Hegde</span> <span
+											class="text-muted d-block" style="font-size: 0.75rem;">Risk
+												Assessment Director</span></td>
+										<td><span class="badge rounded-pill bg-danger">MANAGER</span></td>
+										<td class="text-center fw-bold"><span
+											class="badge bg-light text-dark border font-monospace px-2">1</span></td>
+									</tr>
+								</th:block>
+
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+	</div>
+
+	<!-- Layout Interface Script Engine Elements -->
+	<script>
+	function handleReviewButtonClick(buttonElement) {
+        const customerId = buttonElement.getAttribute('data-id');
+        const companyName = buttonElement.getAttribute('data-name');
+        const isApprove = buttonElement.getAttribute('data-approve') === 'true';
+        
+        openReviewAction(customerId, isApprove, companyName);
+    }
+        function openReviewAction(customerId, isApprove, companyName) {
+            const container = document.getElementById('reviewBox');
+            const title = document.getElementById('reviewTitle');
+            const header = document.getElementById('reviewHeader');
+            const submitBtn = document.getElementById('reviewSubmitBtn');
+            const rejectionReasonWrapper = document.getElementById('rejectionReasonWrapper');
+            const reasonField = document.getElementById('reasonField');
+            const approveParam = document.getElementById('reviewApproveParam');
+            const form = document.getElementById('reviewForm');
+
+            container.classList.remove('d-none');
+            approveParam.value = isApprove;
+            
+            form.action = '/admin/dashboard/customer/review/' + customerId;
+
+            if (isApprove) {
+                header.className = "card-header bg-success";
+                title.innerHTML = `<i class="bi bi-shield-check me-2"></i> Grant Core System Authorization: ${companyName}`;
+                submitBtn.className = "btn btn-sm btn-success fw-bold px-4";
+                rejectionReasonWrapper.classList.add('d-none');
+                reasonField.required = false;
+                reasonField.value = "";
+            } else {
+                header.className = "card-header bg-danger";
+                title.innerHTML = `<i class="bi bi-shield-exclamation me-2"></i> File Systematic Registration Rejection: ${companyName}`;
+                submitBtn.className = "btn btn-sm btn-danger fw-bold px-4";
+                rejectionReasonWrapper.classList.remove('d-none');
+                reasonField.required = true;
+            }
+
+            container.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function closeReviewBox() {
+            document.getElementById('reviewBox').classList.add('d-none');
+        }
+
+        function updateCounter(counterId, delta) {
+            const counter = document.getElementById(counterId);
+            if (!counter) return;
+            const current = Number.parseInt(counter.textContent || '0', 10);
+            counter.textContent = Math.max(0, current + delta).toString();
+        }
+
+        function removePlaceholderRows(tableBody) {
+            tableBody.querySelectorAll('td[colspan]').forEach((cell) => {
+                const row = cell.closest('tr');
+                if (row) row.remove();
+            });
+        }
+
+        document.getElementById('reviewForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const actionParts = this.action.split('/');
+            const customerId = actionParts[actionParts.length - 1];
+            const approve = document.getElementById('reviewApproveParam').value;
+            const reason = document.getElementById('reasonField').value.trim();
+            const params = new URLSearchParams({ approve });
+            if (reason) params.set('reason', reason);
+
+            try {
+                const response = await fetch(`/api/admin/customers/review/${customerId}?${params}`, {
+                    method: 'PUT',
+                    credentials: 'same-origin'
+                });
+
+                if (!response.ok) {
+                    throw new Error(await response.text());
+                }
+
+                const row = document.getElementById(`customer-row-${customerId}`);
+                if (row) row.remove();
+                updateCounter('pendingCount', -1);
+                closeReviewBox();
+            } catch (error) {
+                alert(`Customer review failed: ${error.message || error}`);
+            }
+        });
+
+        document.getElementById('staffOnboardForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+            const employeeEmail = formData.get('employeeEmail');
+            const staff = {
+                employeeId: formData.get('employeeId'),
+                name: formData.get('name'),
+                password: formData.get('password'),
+                role: formData.get('role')
+            };
+
+            try {
+                const response = await fetch(`/api/admin/staff/onboard?employeeEmail=${encodeURIComponent(employeeEmail)}`, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(staff)
+                });
+
+                if (!response.ok) {
+                    throw new Error(await response.text());
+                }
+
+                const savedStaff = await response.json();
+                const staffTableBody = document.getElementById('staffTableBody');
+                removePlaceholderRows(staffTableBody);
+
+                const row = document.createElement('tr');
+                const roleClass = savedStaff.role === 'MANAGER' ? 'bg-danger' : 'bg-primary';
+                const title = savedStaff.role === 'MANAGER' ? 'Risk Assessment Director' : 'Credit Analyst';
+                row.innerHTML = `
+                    <td class="font-monospace text-muted">${savedStaff.employeeId || ''}</td>
+                    <td>
+                        <span class="fw-bold">${savedStaff.name || ''}</span>
+                        <span class="text-muted d-block" style="font-size: 0.75rem;">${title}</span>
+                    </td>
+                    <td><span class="badge rounded-pill ${roleClass}">${savedStaff.role || 'OFFICER'}</span></td>
+                    <td class="text-center fw-bold">
+                        <span class="badge bg-light text-dark border font-monospace px-2">${savedStaff.activeApplicationCount ?? 0}</span>
+                    </td>`;
+                staffTableBody.appendChild(row);
+                updateCounter('staffCount', 1);
+                this.reset();
+                document.getElementById('role').value = 'OFFICER';
+            } catch (error) {
+                alert(`Staff onboarding failed: ${error.message || error}`);
+            }
+        });
+    </script>
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

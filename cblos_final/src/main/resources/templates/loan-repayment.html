@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrustEdge Bank - Corporate Payment Terminal</title>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+	rel="stylesheet">
+<style>
+body {
+	background-color: #f4f6f9;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+		sans-serif;
+}
+
+.terminal-nav {
+	background-color: #0d1b2a;
+	border-bottom: 3px solid #198754;
+}
+
+.checkout-card {
+	border: none;
+	border-radius: 8px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+</style>
+</head>
+<body>
+
+	<nav class="navbar navbar-dark terminal-nav py-2 shadow-sm">
+		<div class="container">
+			<a class="navbar-brand d-flex align-items-center" href="#"> <i
+				class="bi bi-shield-lock-fill text-success me-2 fs-4"></i> <span
+				class="fw-bold text-uppercase tracking-wider text-white"
+				style="font-size: 1rem;">Secure Payment Gateway Terminal</span>
+			</a> <span
+				class="badge bg-success-subtle text-success border border-success px-3 py-1 font-monospace">SLA_SECURE_256BIT</span>
+		</div>
+	</nav>
+
+	<div class="container my-5">
+		<div class="row justify-content-center">
+			<div class="col-lg-7">
+
+				<div class="card checkout-card p-4 bg-white">
+					<div
+						class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+						<h4 class="fw-bold text-dark mb-0">
+							<i class="bi bi-wallet2 text-success me-2"></i> Corporate Loan
+							Repayment
+						</h4>
+						<span class="badge bg-dark font-monospace px-2 py-1"
+							th:text="'LOAN ACCOUNT REF: ' + ${account.accountNumber}">LN-000</span>
+					</div>
+
+					<div class="row g-3 bg-light p-3 rounded mb-4 border mx-0 small">
+						<div class="col-md-6">
+							<span class="text-muted d-block mb-1">Corporate Registrant
+								Account:</span> <strong class="text-dark d-block"
+								th:text="${account.customer.companyName}">Demo Corp
+								Ltd.</strong>
+						</div>
+						<div class="col-md-6">
+							<span class="text-muted d-block mb-1">Subscribed Financial
+								Facility:</span> <strong class="text-dark d-block text-uppercase"
+								th:text="${account.loanApplication.loanType}">WORKING_CAPITAL_LINE</strong>
+						</div>
+						<div class="col-md-6 border-top pt-2">
+							<span class="text-muted d-block mb-1">Remaining
+								Outstanding Principal:</span> <strong
+								class="text-dark d-block fs-6 text-danger fw-bold"
+								th:text="'₹' + ${#numbers.formatDecimal(account.principalAmount, 1, 'COMMA', 2, 'POINT')}">₹0.00</strong>
+						</div>
+						<div class="col-md-6 border-top pt-2">
+							<span class="text-muted d-block mb-1">Agreed Tenure Window
+								Setup:</span> <strong class="text-dark d-block fs-6"
+								th:text="${account.loanApplication.requestedTenureMonths} + ' Months'">0
+								Mos</strong>
+						</div>
+					</div>
+
+					<form th:action="@{/customer/dashboard/loan/repay}" method="POST">
+						<input type="hidden" name="accountId" th:value="${account.id}">
+						<input type="hidden" name="customerId"
+							th:value="${account.customer.id}"> <input type="hidden"
+							name="installmentId" th:value="${nextInstallmentId}">
+
+						<div th:if="${nextInstallment != null}"
+							class="alert alert-info border-0 shadow-sm d-flex align-items-center mb-4">
+							<i class="bi bi-calendar-event-fill fs-4 me-3 text-info"></i>
+							<div>
+								<span class="d-block small text-muted text-uppercase fw-bold"
+									style="font-size: 0.68rem;">Target Billing Sequence</span> <span
+									class="fw-bold text-dark"> Processing Installment
+									Period: <span class="text-primary font-monospace"
+									th:text="'#' + ${nextInstallment.installmentNumber}">#1</span>
+								</span> <span class="d-block small text-secondary mt-0.5"> <i
+									class="bi bi-clock-history"></i> Original Contract Maturity
+									Date: <strong class="text-dark"
+									th:text="${#temporals.format(nextInstallment.dueDate, 'dd MMMM, yyyy')}">15
+										July, 2026</strong>
+								</span>
+							</div>
+						</div>
+
+						<div class="mb-4">
+							<label class="form-label small fw-bold text-secondary mb-1">Repayment
+								Mode Strategy Selection *</label> <select id="paymentTypeSelector"
+								name="paymentType" class="form-select"
+								onchange="togglePaymentAmountContext()" required>
+								<option value="MONTHLY" th:data-amt="${monthlyEmi}" selected
+									th:text="${nextInstallment != null} ? 'Pay Installment Row #' + ${nextInstallment.installmentNumber} + ' (Current Month EMI Due)' : 'Pay Current Month Installment'">
+									Pay Current Month Installment (EMI Breakdown)</option>
+								<option value="TOTAL" th:data-amt="${account.principalAmount}">Pay
+									Off Full Balance (Complete Settlement Line Pre-closure)</option>
+							</select>
+						</div>
+
+						<div class="mb-4">
+							<label for="paymentAmount"
+								class="form-label small fw-bold text-secondary mb-1">Authorization
+								Remittance Transaction Amount Value *</label>
+							<div class="input-group input-group-lg">
+								<span class="input-group-text bg-white border-success fw-bold">₹</span>
+								<input type="text" id="paymentAmount" name="paymentAmount"
+									class="form-control font-monospace fw-bold text-success border-success bg-white"
+									th:value="${#numbers.formatDecimal(monthlyEmi, 1, 2, 'POINT')}"
+									readonly>
+							</div>
+						</div>
+
+						<div
+							class="d-flex justify-content-between align-items-center border-top pt-3 mt-4">
+							<a
+								th:href="@{/customer/dashboard/{id}(id=${account.customer.id})}"
+								class="btn btn-sm btn-outline-secondary px-3 fw-bold"> <i
+								class="bi bi-arrow-left me-1"></i> Abort
+							</a>
+							<button type="submit"
+								class="btn btn-success fw-bold px-4 shadow-sm">
+								<i class="bi bi-shield-check me-1"></i> Confirm Electronic
+								Remittance
+							</button>
+						</div>
+					</form>
+					>
+
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<script>
+		// Handles dynamic client-side amount field swaps when the user adjusts their billing model strategy
+		function togglePaymentAmountContext() {
+			const selector = document.getElementById('paymentTypeSelector');
+			const activeOption = selector.options[selector.selectedIndex];
+			const targetAmount = parseFloat(
+					activeOption.getAttribute('data-amt')).toFixed(2);
+
+			document.getElementById('paymentAmount').value = targetAmount;
+		}
+	</script>
+</body>
+</html>

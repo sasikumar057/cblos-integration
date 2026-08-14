@@ -1,0 +1,11 @@
+.staff-onboard-card {
+  position: relative;
+}
+
+.staff-popup {
+  border-left: 4px solid #dc3545;
+}
+
+.staff-popup .btn-close {
+  font-size: 0.75rem;
+}

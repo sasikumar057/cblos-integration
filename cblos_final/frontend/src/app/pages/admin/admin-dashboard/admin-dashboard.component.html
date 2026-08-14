@@ -1,0 +1,308 @@
+<nav class="navbar navbar-dark sticky-top py-2" style="background:#0b132b;border-bottom:3px solid #3a506b;">
+  <div class="container d-flex justify-content-between align-items-center">
+    <span class="navbar-brand text-white fw-bold mb-0">
+      <i class="bi bi-shield-lock-fill text-warning me-2"></i> Admin Console
+    </span>
+    <button class="btn btn-sm nav-action-btn signout-action" (click)="logout()">
+      <i class="bi bi-box-arrow-right"></i> Sign Out
+    </button>
+  </div>
+</nav>
+
+<div class="container my-4">
+  @if (message()) { <div class="alert alert-success py-2">{{ message() }}</div> }
+  @if (error()) { <div class="alert alert-danger py-2">{{ error() }}</div> }
+  @if (isLoading()) { <div class="loading-bar mb-3"></div> }
+
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div>
+      <h4 class="fw-bold mb-1">Operations Overview</h4>
+      <div class="small text-muted"><span class="status-dot"></span>Live workflow data
+        @if (lastRefreshed()) { <span class="last-refresh ms-2">Last refreshed {{ lastRefreshed() }}</span> }
+      </div>
+    </div>
+    <button class="btn btn-sm nav-action-btn refresh-action" type="button" (click)="loadData()" [disabled]="isLoading()">
+      <i class="bi bi-arrow-clockwise me-1"></i>{{ isLoading() ? 'Refreshing...' : 'Refresh' }}
+    </button>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card p-3">
+        <h6 class="text-muted text-uppercase small">Pending Registrations</h6>
+        <h3 class="mb-0">{{ adminStats().pending }}</h3>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card p-3">
+        <h6 class="text-muted text-uppercase small">Internal Staff</h6>
+        <h3 class="mb-0">{{ adminStats().staff }}</h3>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card p-3">
+        <h6 class="text-muted text-uppercase small">Officers</h6>
+        <h3 class="mb-0">{{ adminStats().officers }}</h3>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card p-3">
+        <h6 class="text-muted text-uppercase small">Managers</h6>
+        <h3 class="mb-0">{{ adminStats().managers }}</h3>
+      </div>
+    </div>
+    <div class="col-md-12">
+      <div class="card p-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <div>
+            <h6 class="text-muted text-uppercase small">Workflow Intelligence</h6>
+            <h5 class="fw-bold mb-1">{{ operationsHealth() }}</h5>
+            <div class="small text-muted">{{ recommendedAction() }}</div>
+          </div>
+          <span class="sla-badge">{{ staff().length }} staff | {{ pendingCustomers().length }} pending</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-4">
+    <div class="col-lg-7">
+      <div class="card h-100 shadow-sm p-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+          <h5 class="fw-bold mb-0 text-dark">Pending Customer Reviews</h5>
+          <div class="filter-field position-relative">
+            <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-2 text-muted"></i>
+            <input class="form-control form-control-sm ps-4" style="width: 240px;" placeholder="Search company, tax ID, email"
+              [value]="customerSearch()" (input)="customerSearch.set($any($event.target).value)" />
+          </div>
+        </div>
+
+        @if (pendingCustomers().length === 0) {
+          <div class="empty-state py-5 text-center">
+            <i class="bi bi-check-circle text-success display-4 d-block mb-2"></i>
+            <strong class="d-block">No pending registrations</strong>
+            <span class="text-muted small">New corporate registrations will appear here for approval.</span>
+          </div>
+        } @else if (filteredPendingCustomers().length === 0) {
+          <div class="empty-state py-5 text-center">
+            <i class="bi bi-search text-warning display-4 d-block mb-2"></i>
+            <strong class="d-block">No matching registrations</strong>
+            <span class="text-muted small">Clear or change the search text to show pending customers.</span>
+          </div>
+        } @else {
+          <div class="table-container border rounded">
+            <div class="table-responsive">
+              <table class="table table-sm table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Company</th>
+                    <th>Tax ID</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Industry</th>
+                    <th>Status</th>
+                    <!-- <th class="sticky-action-header text-center">Action</th> -->
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (c of filteredPendingCustomers(); track c.id) {
+                    <tr [class.table-primary]="selectedCustomer()?.id === c.id" style="cursor: pointer;" (click)="selectCustomer(c)">
+                      <td class="fw-semibold">{{ c.companyName }}</td>
+                      <td><code class="text-secondary bg-light px-1 rounded">{{ c.taxId }}</code></td>
+                      <td>{{ c.companyEmail }}</td>
+                      <td>{{ c.phoneNumber }}</td>
+                      <td><span class="badge bg-light text-dark border">{{ c.industryType }}</span></td>
+                      <td>
+                        <span [class]="c.registrationPasswordConfigured ? statusClass('ACTIVE') : statusClass('REJECTED')">
+                          {{ c.registrationPasswordConfigured ? 'Captured' : 'Missing' }}
+                        </span>
+                      </td>
+                      <!-- <td class="sticky-action-col text-center" (click)="$event.stopPropagation()">
+                        <button class="btn btn-sm btn-primary shadow-sm px-3" (click)="selectCustomer(c)">
+                          Review
+                        </button>
+                      </td> -->
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      @if (selectedCustomer(); as c) {
+        <div class="card border-primary shadow-sm h-100 p-3 fade-in">
+          <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+            <h5 class="fw-bold text-primary mb-0">Review Action Desk</h5>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Under Review</span>
+          </div>
+          
+          <div class="mb-4 bg-light p-3 rounded border">
+            <h6 class="fw-bold mb-3 text-dark"><i class="bi bi-building me-2"></i>{{ c.companyName }}</h6>
+            <div class="row g-2 small text-muted">
+              <div class="col-6"><strong>Tax ID:</strong> {{c.taxId}}</div>
+              <div class="col-6"><strong>Industry:</strong> {{c.industryType}}</div>
+              <div class="col-12 text-truncate"><strong>Email:</strong> {{c.companyEmail}}</div>
+              <div class="col-12"><strong>Phone:</strong> {{c.phoneNumber}}</div>
+            </div>
+          </div>
+          
+          <div class="mb-3 flex-grow-1">
+            <label class="form-label small fw-bold text-secondary mb-1">
+              Rejection Remarks <span class="text-danger">*</span>
+            </label>
+            <textarea class="form-control form-control-sm" rows="5"
+              [class.is-invalid]="!reviewReason() || reviewReason().trim() === ''"
+              placeholder="Provide explicit context if rejecting this partner registration..."
+              [value]="reviewReason()" (input)="reviewReason.set($any($event.target).value)"></textarea>
+            
+            @if (!reviewReason() || reviewReason().trim() === '') {
+              <div class="invalid-feedback" style="font-size: 11px;">
+                <i class="bi bi-info-circle-fill me-1"></i> A detailed reason is mandatory for processing rejections.
+              </div>
+            }
+          </div>
+          
+          <div class="d-flex gap-2 pt-2 border-top">
+            <button class="btn btn-success w-100 py-2 fw-semibold" (click)="approveCustomer()" [disabled]="isReviewing()">
+              @if (isReviewing()) {
+                <span class="spinner-border spinner-border-sm me-1"></span> Processing...
+              } @else {
+                <i class="bi bi-check-lg me-1"></i> Approve Registration
+              }
+            </button>
+            
+            <button class="btn btn-danger w-100 py-2 fw-semibold" (click)="rejectCustomer()" 
+              [disabled]="isReviewing() || !reviewReason() || reviewReason().trim() === ''">
+              @if (isReviewing()) {
+                <span class="spinner-border spinner-border-sm me-1"></span> Processing...
+              } @else {
+                <i class="bi bi-x-lg me-1"></i> Reject Registration
+              }
+            </button>
+          </div>
+        </div>
+      } @else {
+        <div class="card h-100 border-dashed d-flex flex-column align-items-center justify-content-center text-center p-5 text-muted bg-light" style="min-height: 400px;">
+          <i class="bi bi-file-earmark-text display-3 mb-3 text-secondary opacity-50"></i>
+          <h6 class="fw-bold">No Account Selected</h6>
+          <p class="small text-muted px-3 mb-0">Select a company from the list to view active application meta-data, view logs, or issue credentials.</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-5">
+      <div class="card p-3 staff-onboard-card">
+        <h5 class="fw-bold mb-3">Onboard Staff</h5>
+        @if (staffError()) {
+          <div class="staff-popup alert alert-danger shadow-sm" role="alert">
+            <div class="d-flex gap-2">
+              <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+              <div class="small">{{ staffError() }}</div>
+              <button type="button" class="btn-close ms-auto" aria-label="Close" (click)="closeStaffError()"></button>
+            </div>
+          </div>
+        }
+        <form [formGroup]="staffForm" (ngSubmit)="onboardStaff()">
+          <div class="mb-2">
+            <label class="form-label small">Name</label>
+            <input class="form-control form-control-sm" formControlName="name" />
+          </div>
+          <div class="mb-2">
+            <label class="form-label small">Employee ID</label>
+            <input class="form-control form-control-sm" formControlName="employeeId" />
+          </div>
+          <div class="mb-2">
+            <label class="form-label small">Role</label>
+            <select class="form-select form-select-sm" formControlName="role">
+              <option value="OFFICER">Officer</option>
+              <option value="MANAGER">Manager</option>
+            </select>
+          </div>
+          <div class="mb-2">
+            <label class="form-label small">Login Email</label>
+            <input class="form-control form-control-sm" formControlName="employeeEmail" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label small">Password</label>
+            <input type="password" class="form-control form-control-sm" formControlName="password" />
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm w-100" [disabled]="staffForm.invalid || isOnboarding()">
+            <i class="bi bi-person-plus me-1"></i>{{ isOnboarding() ? 'Creating access...' : 'Onboard' }}
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div class="col-lg-7">
+      <div class="card p-3 h-100">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+          <h6 class="fw-bold mb-0">Staff List</h6>
+          <div class="filter-field filter-field-sm">
+            <i class="bi bi-search"></i>
+            <input class="form-control form-control-sm" placeholder="Search staff"
+              [value]="staffSearch()" (input)="staffSearch.set($any($event.target).value)" />
+          </div>
+        </div>
+        
+        @if (staff().length === 0) {
+          <div class="empty-state small text-center py-4 text-muted">
+            <i class="bi bi-people d-block mb-1 fs-4"></i>
+            <strong>No staff onboarded</strong>
+            <span class="d-block">Create an officer before customers submit loan documents.</span>
+          </div>
+        }
+        @if (staff().length > 0 && filteredStaff().length === 0) {
+          <div class="empty-state small text-center py-4 text-muted">
+            <i class="bi bi-search d-block mb-1 fs-4"></i>
+            <strong>No matching staff</strong>
+            <span class="d-block">Try name, employee ID, email, or role.</span>
+          </div>
+        }
+        
+        <div class="overflow-auto" style="max-height: 320px;">
+          @for (s of filteredStaff(); track s.id) {
+            <div class="d-flex justify-content-between align-items-center border-bottom py-2 small">
+              <span>{{ s.name }}</span>
+              <span class="text-muted">{{ s.employeeId }}</span>
+              <span class="text-muted">{{ s.employeeEmail }}</span>
+              <span class="badge bg-secondary">{{ s.role }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (pendingReviewAction(); as action) {
+    <div class="confirm-backdrop" role="dialog" aria-modal="true">
+      <div class="confirm-dialog">
+        <h6 class="fw-bold mb-2">{{ action === 'APPROVE' ? 'Approve customer?' : 'Reject customer?' }}</h6>
+        <p class="small text-muted mb-3">
+          {{ selectedCustomer()?.companyName }} will be marked as {{ action === 'APPROVE' ? 'active and allowed to login' : 'rejected' }}.
+        </p>
+
+        @if (action === 'REJECT') {
+          <div class="alert alert-warning py-2 mb-3" style="font-size: 12px;">
+            <strong>Reason Note:</strong> "{{ reviewReason() }}"
+          </div>
+        }
+
+        <div class="d-flex justify-content-end gap-2">
+          <button class="btn btn-sm btn-outline-secondary" type="button" (click)="cancelReviewAction()">Cancel</button>
+          
+          <button class="btn btn-sm" [class.btn-success]="action === 'APPROVE'" [class.btn-danger]="action === 'REJECT'"
+            type="button" (click)="confirmReviewAction()" 
+            [disabled]="isReviewing() || (action === 'REJECT' && (!reviewReason() || reviewReason().trim() === ''))">
+            {{ isReviewing() ? 'Processing...' : 'Confirm' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

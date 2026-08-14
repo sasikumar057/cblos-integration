@@ -1,0 +1,188 @@
+<div class="landing">
+  <div class="ambient-grid"></div>
+
+  <div class="workspace-entry" [class.open]="workspaceOpen()">
+    <button
+      type="button"
+      class="workspace-trigger"
+      (click)="toggleWorkspace()"
+      aria-label="Open staff workspace login"
+      [attr.aria-expanded]="workspaceOpen()">
+      <span class="workspace-mark">
+        <i class="bi bi-grid-1x2-fill"></i>
+      </span>
+      <span class="workspace-copy">
+        <strong>Workspace</strong>
+        <small>Staff access</small>
+      </span>
+      <i class="bi bi-chevron-down workspace-chevron"></i>
+    </button>
+
+    <section class="workspace-panel" aria-label="Staff workspace login">
+      <div class="workspace-panel-head">
+        <span class="workspace-panel-logo"><i class="bi bi-building-lock"></i></span>
+        <div>
+          <strong>Bank Workspace</strong>
+          <small>For internal users only</small>
+        </div>
+      </div>
+      <div class="workspace-roles">
+        <a routerLink="/corporate-login" (click)="closeWorkspace()">
+          <i class="bi bi-shield-lock"></i>
+          <span><strong>Admin</strong><small>System setup and onboarding</small></span>
+        </a>
+        <a routerLink="/corporate-login" (click)="closeWorkspace()">
+          <i class="bi bi-person-badge"></i>
+          <span><strong>Officer</strong><small>Credit review workdesk</small></span>
+        </a>
+        <a routerLink="/corporate-login" (click)="closeWorkspace()">
+          <i class="bi bi-bank"></i>
+          <span><strong>Manager</strong><small>Approval and portfolio monitor</small></span>
+        </a>
+      </div>
+      <a routerLink="/corporate-login" class="workspace-login" (click)="closeWorkspace()">
+        Open staff login <i class="bi bi-arrow-right"></i>
+      </a>
+    </section>
+  </div>
+
+  <button
+    type="button"
+    class="status-launcher"
+    [class.open]="statusPanelOpen()"
+    (click)="toggleStatusPanel()"
+    aria-label="Open registration status checker">
+    <span class="status-launcher-glow"></span>
+    <span class="status-launcher-icon">
+      <i class="bi bi-patch-check"></i>
+    </span>
+    <span class="status-launcher-copy">
+      <strong>Check status</strong>
+      <small>registration</small>
+    </span>
+  </button>
+
+  <section class="status-checker" [class.open]="statusPanelOpen()" aria-label="Check registration status">
+    <div class="status-panel-head">
+      <div class="status-title">
+        <span class="status-title-logo">
+          <i class="bi bi-patch-check-fill"></i>
+        </span>
+        <span>Registration Status</span>
+      </div>
+      <p class="status-helper-text">Enter the email used during registration.</p>
+      <button type="button" class="status-close" (click)="closeStatusPanel()" aria-label="Close registration status checker">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    <form class="status-form" (ngSubmit)="checkRegistrationStatus()">
+      <input
+        type="email"
+        name="statusEmail"
+        [(ngModel)]="statusEmail"
+        placeholder="Enter company email"
+        autocomplete="email"
+        required>
+      <button type="submit" [disabled]="checkingStatus()" aria-label="Check registration status">
+        @if (checkingStatus()) {
+          <span class="spinner-dot"></span>
+        } @else {
+          <i class="bi bi-arrow-right"></i>
+        }
+      </button>
+    </form>
+    @if (statusError()) {
+      <div class="status-result error">{{ statusError() }}</div>
+    }
+@if (registrationStatus(); as result) {
+  <div class="status-result"
+    [class.approved]="result.canLogin"
+    [class.pending]="result.status === 'PENDING_VERIFICATION'"
+    [class.rejected]="result.status.startsWith('REJECTED')"
+    [class.missing]="!result.found">
+    
+    <strong>{{ result.found ? (result.companyName || result.companyEmail) : 'Not registered' }}</strong>
+    <span>{{ result.message }}</span>
+    
+    @if (result.rejectionReason) {
+      <small>Reason: {{ result.rejectionReason }}</small>
+    }
+    
+    @if (result.canLogin) {
+      <a routerLink="/login" class="btn btn-sm btn-success mt-2 d-inline-block">Login now</a>
+    }
+
+    @if (result.status.startsWith('REJECTED')) {
+      <button (click)="redirectToReapply(result.companyEmail ?? '')" class="btn btn-sm btn-primary mt-2 d-inline-block">
+        <i class="bi bi-pencil-square me-1"></i> Correct & Reapply Now
+      </button>
+    }
+  </div>
+}
+  </section>
+
+  <div class="header-row">
+    <div class="hero">
+      <h1 class="logo-title">
+        <span class="text-skyblue">CB</span><span class="text-light">LOS</span>
+      </h1>
+    </div>
+  </div>
+
+  <div class="hero-details">
+    <p class="subtitle">Simple, secure corporate loan processing.</p>
+    <p class="hero-desc">
+      Register your company, apply for credit, upload documents, and track every decision in one place.
+    </p>
+    <div class="hero-actions">
+      <a routerLink="/login" class="action-btn login-btn"><i class="bi bi-box-arrow-in-right"></i> Customer Login</a>
+      <span class="action-divider"></span>
+      <a routerLink="/register" class="action-btn register-btn"><i class="bi bi-building-add"></i> Register</a>
+    </div>
+  </div>
+
+  <div class="feature-marquee" aria-label="Platform highlights">
+    <div class="features feature-track">
+      <div class="feature-card">
+        <i class="bi bi-building"></i>
+        <h3>Register</h3>
+        <p>Create a company profile for bank review.</p>
+      </div>
+      <div class="feature-card">
+        <i class="bi bi-file-earmark-text"></i>
+        <h3>Apply</h3>
+        <p>Choose a product and start a loan request.</p>
+      </div>
+      <div class="feature-card">
+        <i class="bi bi-shield-check"></i>
+        <h3>Review</h3>
+        <p>Officers and managers handle approvals securely.</p>
+      </div>
+      <div class="feature-card">
+        <i class="bi bi-activity"></i>
+        <h3>Track</h3>
+        <p>Follow application status from dashboard.</p>
+      </div>
+      <div class="feature-card" aria-hidden="true">
+        <i class="bi bi-building"></i>
+        <h3>Register</h3>
+        <p>Create a company profile for bank review.</p>
+      </div>
+      <div class="feature-card" aria-hidden="true">
+        <i class="bi bi-file-earmark-text"></i>
+        <h3>Apply</h3>
+        <p>Choose a product and start a loan request.</p>
+      </div>
+      <div class="feature-card" aria-hidden="true">
+        <i class="bi bi-shield-check"></i>
+        <h3>Review</h3>
+        <p>Officers and managers handle approvals securely.</p>
+      </div>
+      <div class="feature-card" aria-hidden="true">
+        <i class="bi bi-activity"></i>
+        <h3>Track</h3>
+        <p>Follow application status from dashboard.</p>
+      </div>
+    </div>
+  </div>
+</div>
