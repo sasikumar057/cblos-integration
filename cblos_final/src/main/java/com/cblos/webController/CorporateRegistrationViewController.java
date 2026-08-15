@@ -23,14 +23,14 @@ public class CorporateRegistrationViewController {
 
     // 2. Process form submission
     // Spring Boot automatically maps form inputs with matching 'name' attributes into the entity
-    @PostMapping
-    public String processRegistration(CorporateCustomer customer) {
-        // Your existing service layer handles saving and setting default status to 'PENDING_VERIFICATION'
-        customerService.onboardCustomer(customer);
+    // @PostMapping
+    // public String processRegistration(CorporateRegistrationRequest request) {
+    //     // Your existing service layer  saving and setting default status to 'PENDING_VERIFICATION'
+    //     customerService.onboardCustomer(request);
         
-        // Redirect to a clean success informational window
-        return "redirect:/register/success";
-    }
+    //     // Redirect to a clean success informational window
+    //     return "redirect:/register/success";
+    // }
 
     @GetMapping("/success")
     public String showSuccessPage() {

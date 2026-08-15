@@ -7,7 +7,8 @@ public record CorporateRegistrationRequest(
     String phoneNumber,
     String businessAddress,
     String industryType,
-    String password
+    String password,
+    PrimaryContactRequest primaryContact
 ) {
     
 }

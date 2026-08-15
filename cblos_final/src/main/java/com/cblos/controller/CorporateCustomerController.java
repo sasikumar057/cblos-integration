@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.cblos.dto.CorporateRegistrationRequest;
 
 import java.util.List;
 
@@ -21,8 +22,8 @@ public class CorporateCustomerController {
 
     //on board customer
     @PostMapping("/onboard")
-    public ResponseEntity<CorporateCustomer> onboardCustomer(@RequestBody CorporateCustomer customer) {
-        CorporateCustomer createdCustomer = customerService.onboardCustomer(customer);
+    public ResponseEntity<CorporateCustomer> onboardCustomer(@RequestBody CorporateRegistrationRequest request) {
+        CorporateCustomer createdCustomer = customerService.onboardCustomer(request);
         return new ResponseEntity<>(createdCustomer, HttpStatus.CREATED);
     }
 

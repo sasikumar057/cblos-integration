@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { CorporateRegistrationRequest } from '../model/corporate-registration-request';
 
 export interface CorporateCustomer {
   id?: number;
@@ -32,12 +33,12 @@ export class CustomerService {
   private readonly http = inject(HttpClient);
   private readonly base = `${environment.apiUrl}/api/customers`;
 
-  onboard(customer: CorporateCustomer): Observable<CorporateCustomer> {
-    return this.http.post<CorporateCustomer>(`${this.base}/onboard`, customer);
+  onboard(request: CorporateRegistrationRequest): Observable<CorporateCustomer> {
+    return this.http.post<CorporateCustomer>(`${this.base}/onboard`, request);
   }
 
-  updateDetails(id: number, customer: Partial<CorporateCustomer>): Observable<CorporateCustomer> {
-  return this.http.patch<CorporateCustomer>(`${this.base}/update/${id}`, customer);
+  updateDetails(customerId: number, customer: Partial<CorporateCustomer>): Observable<CorporateCustomer> {
+  return this.http.patch<CorporateCustomer>(`${this.base}/update/${customerId}`, customer);
   }
   getById(id: number): Observable<CorporateCustomer> {
     return this.http.get<CorporateCustomer>(`${this.base}/${id}`);

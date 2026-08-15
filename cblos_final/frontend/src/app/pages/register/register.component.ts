@@ -2,9 +2,9 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink , ActivatedRoute} from '@angular/router';
 import { CustomerService } from '../../core/services/customer.service';
+import { CorporateRegistrationRequest } from '../../core/model/corporate-registration-request';
 
-
-@Component({
+@Component({  
   selector: 'app-register',
   standalone: true,
   imports: [ReactiveFormsModule, RouterLink],
@@ -42,15 +42,48 @@ ngOnInit(): void {
   isLoading = signal(false);
   errorMessage = signal('');
 
-  registrationForm = this.fb.group({
-    companyName: ['', Validators.required],
-    taxId: ['', Validators.required],
-    companyEmail: ['', [Validators.required, Validators.email]],
-    phoneNumber: [''],
-    industryType: [''],
-    tempRegistrationPassword: [''], // Will conditionally handle validation on submit
-    businessAddress: ['']
-  });
+registrationForm = this.fb.group({
+  companyName: ['', Validators.required],
+
+  taxId: ['', Validators.required],
+
+  companyEmail: [
+    '',
+    [Validators.required, Validators.email]
+  ],
+
+  phoneNumber: [''],
+
+  industryType: [''],
+
+  tempRegistrationPassword: [
+    '',
+    [
+      Validators.required,
+      Validators.minLength(8)
+    ]
+  ],
+
+  businessAddress: [''],
+
+  primaryContact: this.fb.group({
+    firstName: ['', Validators.required],
+
+    lastName: ['', Validators.required],
+
+    email: [
+      '',
+      [
+        Validators.required,
+        Validators.email
+      ]
+    ],
+
+    phoneNumber: ['', Validators.required],
+
+    designation: ['', Validators.required]
+  })
+});
 
   // 🟢 Automatically check status when email field changes focus
   onEmailBlur(): void {
@@ -99,72 +132,165 @@ ngOnInit(): void {
   }
 
   onSubmit(): void {
-    if (this.registrationForm.invalid) {
-      this.registrationForm.markAllAsTouched();
-      return;
-    }
+  if (this.registrationForm.invalid) {
+    this.registrationForm.markAllAsTouched();
+    return;
+  }
 
-    this.isLoading.set(true);
-    this.errorMessage.set('');
-    const payload = this.registrationForm.value as any;
+  this.isLoading.set(true);
+  this.errorMessage.set('');
 
-    // 🟢 Force a live lookup right on submit to determine the correct route
-    this.customerService.checkRegistrationStatus(payload.companyEmail).subscribe({
+  const payload = this.buildRegistrationPayload();
+
+  const companyEmail = payload.companyEmail;
+
+  if(!companyEmail){
+    this.isLoading.set(false);
+    this.errorMessage.set('Company Email is required.');
+    return; 
+  }
+  this.customerService
+    .checkRegistrationStatus(companyEmail)
+    .subscribe({
       next: (statusRes: any) => {
-        const normalizedStatus = (statusRes.status ?? '').toUpperCase();
+        const normalizedStatus =
+          (statusRes.status ?? '').toUpperCase();
 
-        if (statusRes.found && normalizedStatus.startsWith('REJECTED')) {
-          // 🟢 Route A: It exists and is rejected -> Run the PATCH update route
+        if (
+          statusRes.found &&
+          normalizedStatus.startsWith('REJECTED')
+        ) {
           const customerId = statusRes.id;
-          
+
           if (!customerId) {
             this.isLoading.set(false);
-            this.errorMessage.set('System error: Profile tracking identity missing.');
+
+            this.errorMessage.set(
+              'System error: Profile tracking identity missing.'
+            );
+
             return;
           }
 
-          this.customerService.updateDetails(customerId, payload).subscribe({
-            next: () => {
-              this.isLoading.set(false);
-              this.router.navigate(['/register/success']);
-            },
-            error: (err) => {
-              this.isLoading.set(false);
-              this.errorMessage.set(err.error?.message ?? 'Could not resubmit corrected details.');
-            }
-          });
+          this.customerService
+            .updateDetails(customerId, payload)
+            .subscribe({
+              next: () => {
+                this.isLoading.set(false);
 
-        } else if (statusRes.found && normalizedStatus === 'PENDING_VERIFICATION') {
+                this.router.navigate([
+                  '/register/success'
+                ]);
+              },
+              error: (err) => {
+                this.isLoading.set(false);
+
+                this.errorMessage.set(
+                  err.error?.message ??
+                  'Could not resubmit corrected details.'
+                );
+              }
+            });
+
+        } else if (
+          statusRes.found &&
+          normalizedStatus === 'PENDING_VERIFICATION'
+        ) {
           this.isLoading.set(false);
-          this.errorMessage.set('An application under this email is already awaiting verification.');
-          
+
+          this.errorMessage.set(
+            'An application under this email is already awaiting verification.'
+          );
+
         } else {
-          // 🟢 Route B: Brand new customer -> Run the normal onboarding POST route
-          if (!payload.tempRegistrationPassword) {
+          if (!payload.password) {
             this.isLoading.set(false);
-            this.errorMessage.set('Portal Password is required for new accounts.');
+
+            this.errorMessage.set(
+              'Portal Password is required for new accounts.'
+            );
+
             return;
           }
 
-          this.customerService.onboard(payload).subscribe({
-            next: () => {
-              this.isLoading.set(false);
-              this.router.navigate(['/register/success']);
-            },
-            error: (err) => {
-              this.isLoading.set(false);
-              this.errorMessage.set(err.error?.message ?? 'Registration failed.');
-            }
-          });
+          this.customerService
+            .onboard(payload)
+            .subscribe({
+              next: () => {
+                this.isLoading.set(false);
+
+                this.router.navigate([
+                  '/register/success'
+                ]);
+              },
+              error: (err) => {
+                this.isLoading.set(false);
+
+                this.errorMessage.set(
+                  err.error?.message ??
+                  'Registration failed.'
+                );
+              }
+            });
         }
       },
       error: () => {
         this.isLoading.set(false);
-        this.errorMessage.set('Could not verify registration routing status.');
+
+        this.errorMessage.set(
+          'Could not verify registration routing status.'
+        );
       }
     });
-  }
+}
 
+  private buildRegistrationPayload():
+    CorporateRegistrationRequest {
+
+  const formValue = this.registrationForm.getRawValue();
+
+  return {
+    companyName:
+      formValue.companyName?.trim() ?? '',
+
+    taxId:
+      formValue.taxId?.trim().toUpperCase() ?? '',
+
+    companyEmail:
+      formValue.companyEmail?.trim().toLowerCase() ?? '',
+
+    phoneNumber:
+      formValue.phoneNumber?.trim() ?? '',
+
+    industryType:
+      formValue.industryType ?? '',
+
+    businessAddress:
+      formValue.businessAddress?.trim() ?? '',
+
+    password:
+      formValue.tempRegistrationPassword ?? '',
+
+    primaryContact: {
+      firstName:
+        formValue.primaryContact.firstName?.trim() ?? '',
+
+      lastName:
+        formValue.primaryContact.lastName?.trim() ?? '',
+
+      email:
+        formValue.primaryContact.email
+          ?.trim()
+          .toLowerCase() ?? '',
+
+      phoneNumber:
+        formValue.primaryContact.phoneNumber?.trim() ?? '',
+
+      designation:
+        formValue.primaryContact.designation?.trim() ?? ''
+    }
+  };
+}
   private resetCorrectionState(): void {
     this.isCorrectionMode.set(false);
     this.existingCustomerId.set(null);

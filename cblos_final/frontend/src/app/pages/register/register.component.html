@@ -9,9 +9,15 @@
 
         @if (isCorrectionMode()) {
           <div class="alert alert-warning mb-4">
-            <h6 class="fw-bold mb-1"><i class="bi bi-exclamation-triangle-fill me-2"></i>Previous Application Needs Review</h6>
-            <p class="small mb-0"><strong>Reason for Rejection:</strong> {{ rejectionReasonMessage() }}</p>
-            <span class="text-muted extra-small d-block mt-1">Modifying fields below will re-trigger the verification queue.</span>
+            <h6 class="fw-bold mb-1">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>Previous Application Needs Review
+            </h6>
+            <p class="small mb-0">
+              <strong>Reason for Rejection:</strong> {{ rejectionReasonMessage() }}
+            </p>
+            <span class="text-muted extra-small d-block mt-1"
+              >Modifying fields below will re-trigger the verification queue.</span
+            >
           </div>
         }
 
@@ -32,7 +38,12 @@
           <div class="row g-3 mb-3">
             <div class="col-md-6">
               <label class="form-label small fw-bold">Official Company Email *</label>
-              <input type="email" class="form-control form-control-sm" formControlName="companyEmail" (blur)="onEmailBlur()" />
+              <input
+                type="email"
+                class="form-control form-control-sm"
+                formControlName="companyEmail"
+                (blur)="onEmailBlur()"
+              />
             </div>
             <div class="col-md-6">
               <label class="form-label small fw-bold">Company Phone</label>
@@ -53,104 +64,100 @@
                 <option value="Healthcare">Healthcare</option>
               </select>
             </div>
-            
+
             <div class="col-md-6" [style.opacity]="isCorrectionMode() ? '0.5' : '1'">
               <label class="form-label small fw-bold">
                 Portal Password {{ isCorrectionMode() ? '(Saved)' : '*' }}
               </label>
-              <input type="password" class="form-control form-control-sm" formControlName="tempRegistrationPassword" [disabled]="isCorrectionMode()" />
+              <input
+                type="password"
+                class="form-control form-control-sm"
+                formControlName="tempRegistrationPassword"
+                [disabled]="isCorrectionMode()"
+              />
             </div>
 
             <div class="col-12">
               <label class="form-label small fw-bold">Business Address</label>
-              <textarea class="form-control form-control-sm" rows="2" formControlName="businessAddress"></textarea>
+              <textarea
+                class="form-control form-control-sm"
+                rows="2"
+                formControlName="businessAddress"
+              ></textarea>
             </div>
           </div>
           <h6>Primary Contact</h6>
-<p class="text-muted small mb-2">
-  Enter the details of the authorized person whom the bank can
-  contact regarding registration and loan applications.
-</p>
+          <p class="text-muted small mb-2">
+            Enter the details of the authorized person whom the bank can contact regarding
+            registration and loan applications.
+          </p>
 
-<div formGroupName="primaryContact">
-  <div class="row g-3 mb-3">
+          <div formGroupName="primaryContact">
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold"> First Name * </label>
 
-    <div class="col-md-6">
-      <label class="form-label small fw-bold">
-        First Name *
-      </label>
+                <input
+                  type="text"
+                  class="form-control form-control-sm"
+                  formControlName="firstName"
+                />
+              </div>
 
-      <input
-        type="text"
-        class="form-control form-control-sm"
-        formControlName="firstName"
-      />
-    </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold"> Last Name * </label>
 
-    <div class="col-md-6">
-      <label class="form-label small fw-bold">
-        Last Name *
-      </label>
+                <input
+                  type="text"
+                  class="form-control form-control-sm"
+                  formControlName="lastName"
+                />
+              </div>
 
-      <input
-        type="text"
-        class="form-control form-control-sm"
-        formControlName="lastName"
-      />
-    </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold"> Work Email * </label>
 
-    <div class="col-md-6">
-      <label class="form-label small fw-bold">
-        Work Email *
-      </label>
+                <input type="email" class="form-control form-control-sm" formControlName="email" />
+              </div>
 
-      <input
-        type="email"
-        class="form-control form-control-sm"
-        formControlName="email"
-      />
-    </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold"> Direct Phone Number * </label>
 
-    <div class="col-md-6">
-      <label class="form-label small fw-bold">
-        Direct Phone Number *
-      </label>
+                <input
+                  type="tel"
+                  class="form-control form-control-sm"
+                  formControlName="phoneNumber"
+                />
+              </div>
 
-      <input
-        type="tel"
-        class="form-control form-control-sm"
-        formControlName="phoneNumber"
-      />
-    </div>
+              <div class="col-12">
+                <label class="form-label small fw-bold"> Designation * </label>
 
-    <div class="col-12">
-      <label class="form-label small fw-bold">
-        Designation *
-      </label>
-
-      <input
-        type="text"
-        class="form-control form-control-sm"
-        formControlName="designation"
-        placeholder="For example: Finance Manager"
-      />
-    </div>
-
-  </div>
-</div>
-
-          @if (errorMessage()) {
-            <div class="alert alert-danger py-2">{{ errorMessage() }}</div>
-          }
-
-          <button type="submit" class="btn btn-primary w-100 register-submit" [disabled]="registrationForm.invalid || isLoading()">
-            {{ isLoading() ? 'Submitting...' : (isCorrectionMode() ? 'Resubmit Corrected Profile' : 'Submit Registration') }}
+                <input
+                  type="text"
+                  class="form-control form-control-sm"
+                  formControlName="designation"
+                  placeholder="For example: Finance Manager"
+                />
+              </div>
+            </div>
+          </div>
+          <button
+            type="submit"
+            class="btn btn-primary w-100 register-submit"
+            [disabled]="registrationForm.invalid || isLoading()"
+          >
+            {{
+              isLoading()
+                ? 'Submitting...'
+                : isCorrectionMode()
+                  ? 'Resubmit Corrected Profile'
+                  : 'Submit Registration'
+            }}
           </button>
         </form>
 
-        <p class="text-center mt-3 small">
-          Already registered? <a routerLink="/login">Sign in</a>
-        </p>
+        <p class="text-center mt-3 small">Already registered? <a routerLink="/login">Sign in</a></p>
       </div>
     </div>
   </div>
