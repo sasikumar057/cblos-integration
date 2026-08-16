@@ -112,7 +112,14 @@ registrationForm = this.fb.group({
             taxId: res.taxId ? res.taxId.toUpperCase().trim() : '',
             phoneNumber: res.phoneNumber || '',
             industryType: res.industryType || '',
-            businessAddress: res.businessAddress || ''
+            businessAddress: res.businessAddress || '',
+            primaryContact: {
+              firstName: res.contactFirstName || '',
+              lastName: res.contactLastName || '',
+              email: res.contactEmail || '',
+              phoneNumber: res.contactPhoneNumber || '',
+              designation: res.contactDesignation || ''
+            }
           });
 
           this.registrationForm.markAsDirty();

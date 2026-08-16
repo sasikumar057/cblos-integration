@@ -3,11 +3,13 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { finalize, forkJoin } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { AdminService, LoanOfficer } from '../../../core/services/admin.service';
-import { CorporateCustomer } from '../../../core/services/customer.service';
+// import { CorporateCustomer } from '../../../core/services/customer.service';
 import { statusBadgeClass, statusLabel } from '../../../core/utils/status-ui';
+import { CustomerReviewResponse } from '../../../core/model/customer-review-response';
+
 
 @Component({
-  selector: 'app-admin-dashboard',
+  selector: 'app-admin-dashboard',  
   standalone: true,
   imports: [ReactiveFormsModule],
   templateUrl: './admin-dashboard.component.html',
@@ -18,9 +20,9 @@ export class AdminDashboardComponent implements OnInit {
   private readonly adminService = inject(AdminService);
   private readonly fb = inject(FormBuilder);
 
-  pendingCustomers = signal<CorporateCustomer[]>([]);
+  pendingCustomers = signal<CustomerReviewResponse[]>([]);
   staff = signal<LoanOfficer[]>([]);
-  selectedCustomer = signal<CorporateCustomer | null>(null);
+  selectedCustomer = signal<CustomerReviewResponse | null>(null);
   reviewReason = signal('');
   message = signal('');
   error = signal('');
@@ -37,7 +39,7 @@ export class AdminDashboardComponent implements OnInit {
     const term = this.customerSearch().trim().toLowerCase();
     if (!term) return this.pendingCustomers();
     return this.pendingCustomers().filter(customer =>
-      [customer.companyName, customer.taxId, customer.companyEmail, customer.phoneNumber, customer.industryType]
+      [customer.companyName, customer.taxId, customer.companyEmail, customer.phoneNumber, customer.industryType, customer.businessAddress, customer.primaryContact?.lastName, customer.primaryContact?.email, customer.primaryContact?.phoneNumber, customer.primaryContact?.designation]
         .some(value => (value ?? '').toLowerCase().includes(term))
     );
   });
@@ -97,7 +99,7 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  selectCustomer(c: CorporateCustomer): void {
+  selectCustomer(c: CustomerReviewResponse): void {
     this.selectedCustomer.set(c);
     this.reviewReason.set('');
   }

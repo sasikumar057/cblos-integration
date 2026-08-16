@@ -169,7 +169,8 @@ public class CorporateCustomerService {
     }
 
     // allow customer to update the details
-    public CorporateCustomer updatePendingCustomerDetails(Integer id, CorporateCustomer updatedData) {
+    @Transactional
+    public CorporateCustomer updatePendingCustomerDetails(Integer id, CorporateRegistrationRequest request) {
         CorporateCustomer existingCustomer = customerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Corporate Customer profile not found"));
 
@@ -180,22 +181,44 @@ public class CorporateCustomerService {
                     "Profile modification locked: This profile has already been approved and cannot be edited directly.");
         }
 
-        if (updatedData.getCompanyName() != null)
-            existingCustomer.setCompanyName(updatedData.getCompanyName());
-        if (updatedData.getPhoneNumber() != null)
-            existingCustomer.setPhoneNumber(updatedData.getPhoneNumber());
-        if (updatedData.getBusinessAddress() != null)
-            existingCustomer.setBusinessAddress(updatedData.getBusinessAddress());
-        if (updatedData.getIndustryType() != null)
-            existingCustomer.setIndustryType(updatedData.getIndustryType());
+        if (request.companyName() != null)
+            existingCustomer.setCompanyName(request.companyName());
+        if (request.phoneNumber() != null)
+            existingCustomer.setPhoneNumber(request.phoneNumber());
+        if (request.businessAddress() != null)
+            existingCustomer.setBusinessAddress(request.businessAddress());
+        if (request.industryType() != null)
+            existingCustomer.setIndustryType(request.industryType());
 
-        if (updatedData.getTaxId() != null && !updatedData.getTaxId().equalsIgnoreCase(existingCustomer.getTaxId())) {
-            if (customerRepository.findByTaxId(updatedData.getTaxId()).isPresent()) {
+        if (request.taxId() != null && !request.taxId().equalsIgnoreCase(existingCustomer.getTaxId())) {
+            if (customerRepository.findByTaxId(request.taxId()).isPresent()) {
                 throw new RuntimeException("Validation Failed: Customer with this Tax ID already exists.");
             }
-            existingCustomer.setTaxId(updatedData.getTaxId());
+            existingCustomer.setTaxId(request.taxId());
         }
 
+        PrimaryContactRequest contactRequest = request.primaryContact();
+        if (contactRequest == null) {
+            throw new IllegalArgumentException("Validation Failed: Primary contact details are required.");
+        }
+
+        CorporateContact existingContact = contactRepository.findByCorporateCustomerIdAndPrimaryTrue(id)
+                .orElseThrow(() -> new RuntimeException("Primary contact for this customer not found" + id));
+
+        if (contactRequest.firstName() != null)
+            existingContact.setFirstName(contactRequest.firstName());
+        if (contactRequest.lastName() != null)
+            existingContact.setLastName(contactRequest.lastName());
+        if (contactRequest.phoneNumber() != null)
+            existingContact.setPhoneNumber(contactRequest.phoneNumber());
+        if (contactRequest.designation() != null)
+            existingContact.setDesignation(contactRequest.designation());
+        if (contactRequest.email() != null && !contactRequest.email().equalsIgnoreCase(existingContact.getEmail())) {
+            if (contactRepository.findByEmailIgnoreCase(contactRequest.email()).isPresent()) {
+                throw new RuntimeException("Validation Failed: A Contact with this email already exists.");
+            }
+            existingContact.setEmail(contactRequest.email());
+        }
         existingCustomer.setStatus("PENDING_VERIFICATION");
         existingCustomer.setRejectionReason(null);
 
@@ -270,6 +293,11 @@ public class CorporateCustomerService {
                         null,
                         null,
                         null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
                         "No registration found for this email.",
                         false));
     }
@@ -317,6 +345,8 @@ public class CorporateCustomerService {
         String status = customer.getStatus() == null ? "UNKNOWN" : customer.getStatus();
         String normalizedStatus = status.trim().toUpperCase();
         boolean approved = "ACTIVE".equals(normalizedStatus) || "APPROVED".equals(normalizedStatus);
+        CorporateContact primaryContact = contactRepository.findByCorporateCustomerIdAndPrimaryTrue(customer.getId())
+                .orElse(null);
 
         String message;
         if (approved) {
@@ -340,6 +370,11 @@ public class CorporateCustomerService {
                 customer.getIndustryType(),
                 customer.getBusinessAddress(),
                 customer.getRejectionReason(),
+                primaryContact != null ? primaryContact.getFirstName() : null,
+                primaryContact != null ? primaryContact.getLastName() : null,
+                primaryContact != null ? primaryContact.getEmail() : null,
+                primaryContact != null ? primaryContact.getPhoneNumber() : null,
+                primaryContact != null ? primaryContact.getDesignation() : null,
                 message,
                 approved);
     }

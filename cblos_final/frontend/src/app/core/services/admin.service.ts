@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { CorporateCustomer } from './customer.service';
+import { CustomerReviewResponse } from '../model/customer-review-response';
 
 export interface LoanOfficer {
   id?: number;
@@ -19,8 +20,8 @@ export class AdminService {
   private readonly http = inject(HttpClient);
   private readonly base = `${environment.apiUrl}/api/admin`;
 
-  getPendingCustomers(): Observable<CorporateCustomer[]> {
-    return this.http.get<CorporateCustomer[]>(`${this.base}/customers/pending`);
+  getPendingCustomers(): Observable<CustomerReviewResponse[]> {
+    return this.http.get<CustomerReviewResponse[]>(`${this.base}/customers/pending`);
   }
 
   getAllStaff(): Observable<LoanOfficer[]> {

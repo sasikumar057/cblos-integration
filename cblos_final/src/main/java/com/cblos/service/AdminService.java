@@ -5,11 +5,16 @@ import com.cblos.model.LoanOfficer;
 import com.cblos.model.AppUser; 
 import com.cblos.repository.CorporateCustomerRepository;
 import com.cblos.repository.LoanOfficerRepository;
-import com.cblos.repository.AppUserRepository; 
+import com.cblos.repository.AppUserRepository;
+import com.cblos.repository.CorporateContactRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder; 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.cblos.dto.CustomerReviewResponse;
+import com.cblos.dto.PrimaryContactResponse;
+import com.cblos.model.CorporateContact;
 
 import java.util.List;
 
@@ -28,10 +33,15 @@ public class AdminService {
     @Autowired
     private PasswordEncoder passwordEncoder; 
 
+    @Autowired
+    private CorporateContactRepository contactRepository;
+
     //get all pending register application
-    public List<CorporateCustomer> getPendingRegistrations() {
+    public List<CustomerReviewResponse> getPendingRegistrations() {
         return customerRepository.findAll().stream()
-                .filter(c -> "PENDING_VERIFICATION".equalsIgnoreCase(c.getStatus()))
+                .filter(customer -> "PENDING_VERIFICATION".equalsIgnoreCase(
+                        customer.getStatus()))
+                .map(this::toCustomerReviewResponse)
                 .toList();
     }
 
@@ -131,5 +141,38 @@ public class AdminService {
 
     private boolean isBCryptHash(String password) {
         return password != null && password.matches("^\\$2[aby]\\$\\d{2}\\$.{53}$");
+    }
+
+    private CustomerReviewResponse toCustomerReviewResponse(
+            CorporateCustomer customer) {
+
+        CorporateContact contact = contactRepository
+                .findByCorporateCustomerIdAndPrimaryTrue(
+                        customer.getId())
+                .orElse(null);
+
+        PrimaryContactResponse contactResponse = null;
+
+        if (contact != null) {
+            contactResponse = new PrimaryContactResponse(
+                    contact.getId(),
+                    contact.getFirstName(),
+                    contact.getLastName(),
+                    contact.getEmail(),
+                    contact.getPhoneNumber(),
+                    contact.getDesignation());
+        }
+
+        return new CustomerReviewResponse(
+                customer.getId(),
+                customer.getCompanyName(),
+                customer.getTaxId(),
+                customer.getCompanyEmail(),
+                customer.getPhoneNumber(),
+                customer.getBusinessAddress(),
+                customer.getIndustryType(),
+                customer.getStatus(),
+                customer.getRejectionReason(),
+                contactResponse);
     }
 }

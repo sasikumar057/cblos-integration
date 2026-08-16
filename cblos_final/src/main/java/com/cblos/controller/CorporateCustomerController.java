@@ -52,9 +52,9 @@ public class CorporateCustomerController {
     @PatchMapping("/update/{id}")
     public ResponseEntity<CorporateCustomer> updateCustomerDetails(
             @PathVariable Integer id,
-            @RequestBody CorporateCustomer partialUpdatedData) {
+            @RequestBody CorporateRegistrationRequest request) {
         
-        CorporateCustomer editedCustomer = customerService.updatePendingCustomerDetails(id, partialUpdatedData);
+        CorporateCustomer editedCustomer = customerService.updatePendingCustomerDetails(id, request);
         return ResponseEntity.ok(editedCustomer);
     }
 

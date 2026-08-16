@@ -21,19 +21,19 @@ public class AdminDashboardViewController {
     @Autowired
     private LoanOfficerService officerService;
 
-    @GetMapping("/dashboard")
-    public String showAdminDashboard(Model model) {
+    // @GetMapping("/dashboard")
+    // public String showAdminDashboard(Model model) {
 
-        List<CorporateCustomer> pendingCustomers = adminService.getPendingRegistrations();
-        model.addAttribute("pendingCustomers", pendingCustomers);
+    //     List<CorporateCustomer> pendingCustomers = adminService.getPendingRegistrations();
+    //     model.addAttribute("pendingCustomers", pendingCustomers);
 
-        List<LoanOfficer> internalStaff = officerService.getAllLoanOfficer();
-        model.addAttribute("internalStaff", internalStaff);
+    //     List<LoanOfficer> internalStaff = officerService.getAllLoanOfficer();
+    //     model.addAttribute("internalStaff", internalStaff);
 
-        model.addAttribute("newStaff", new LoanOfficer());
+    //     model.addAttribute("newStaff", new LoanOfficer());
 
-        return "admin-dashboard";
-    }
+    //     return "admin-dashboard";
+    // }
 
     @PostMapping("/dashboard/customer/review/{customerId}")
     public String processCustomerReview(@PathVariable("customerId") Integer customerId,

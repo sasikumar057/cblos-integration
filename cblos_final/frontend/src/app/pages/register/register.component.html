@@ -65,6 +65,7 @@
               </select>
             </div>
 
+            @if(!isCorrectionMode()){
             <div class="col-md-6" [style.opacity]="isCorrectionMode() ? '0.5' : '1'">
               <label class="form-label small fw-bold">
                 Portal Password {{ isCorrectionMode() ? '(Saved)' : '*' }}
@@ -76,7 +77,7 @@
                 [disabled]="isCorrectionMode()"
               />
             </div>
-
+            }
             <div class="col-12">
               <label class="form-label small fw-bold">Business Address</label>
               <textarea

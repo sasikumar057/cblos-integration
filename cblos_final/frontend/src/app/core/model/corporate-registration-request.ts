@@ -11,8 +11,8 @@ export interface CorporateRegistrationRequest {
   taxId: string;
   companyEmail: string;
   phoneNumber: string;
-  industryType: string;
   businessAddress: string;
+  industryType: string;
   password: string;
   primaryContact: PrimaryContactRequest;
 }

@@ -11,6 +11,11 @@ boolean found,
     String industryType,    
     String businessAddress, 
     String rejectionReason,
+    String contactFirstName,
+    String contactLastName,
+    String contactEmail,
+    String contactPhoneNumber,
+    String contactDesignation,
     String message,
     boolean canLogin
 ) {

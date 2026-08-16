@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.cblos.dto.CustomerReviewResponse;
 
 import java.util.List;
 
@@ -28,7 +29,7 @@ public class AdminController {
 
     //get all pending customer registered
     @GetMapping("/customers/pending")
-    public ResponseEntity<List<CorporateCustomer>> listPendingCustomers() {
+    public ResponseEntity<List<CustomerReviewResponse>> listPendingCustomers() {
         return ResponseEntity.ok(adminService.getPendingRegistrations());
     }
 
