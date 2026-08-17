@@ -65,18 +65,18 @@
               </select>
             </div>
 
-            @if(!isCorrectionMode()){
-            <div class="col-md-6" [style.opacity]="isCorrectionMode() ? '0.5' : '1'">
-              <label class="form-label small fw-bold">
-                Portal Password {{ isCorrectionMode() ? '(Saved)' : '*' }}
-              </label>
-              <input
-                type="password"
-                class="form-control form-control-sm"
-                formControlName="tempRegistrationPassword"
-                [disabled]="isCorrectionMode()"
-              />
-            </div>
+            @if (!isCorrectionMode()) {
+              <div class="col-md-6" [style.opacity]="isCorrectionMode() ? '0.5' : '1'">
+                <label class="form-label small fw-bold">
+                  Portal Password {{ isCorrectionMode() ? '(Saved)' : '*' }}
+                </label>
+                <input
+                  type="password"
+                  class="form-control form-control-sm"
+                  formControlName="tempRegistrationPassword"
+                  [disabled]="isCorrectionMode()"
+                />
+              </div>
             }
             <div class="col-12">
               <label class="form-label small fw-bold">Business Address</label>
@@ -143,6 +143,12 @@
               </div>
             </div>
           </div>
+          @if (errorMessage()) {
+            <div class="alert alert-danger py-2 mb-3" role="alert">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>
+              {{ errorMessage() }}
+            </div>
+          }
           <button
             type="submit"
             class="btn btn-primary w-100 register-submit"
