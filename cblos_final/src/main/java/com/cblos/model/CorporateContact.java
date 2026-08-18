@@ -34,6 +34,9 @@ public class CorporateContact {
     @JoinColumn(name = "corporate_customer_id", nullable = false)
     private CorporateCustomer corporateCustomer;
 
+    @Column(name = "salesforce_contact_id", length = 18)
+    private String salesforceContactId;
+
     public CorporateContact() {
     }
 
@@ -100,5 +103,15 @@ public class CorporateContact {
     public void setCorporateCustomer(
             CorporateCustomer corporateCustomer) {
         this.corporateCustomer = corporateCustomer;
+    }
+
+    public String getSalesforceContactId() {
+        return salesforceContactId;
+    }
+
+    public void setSalesforceContactId(
+            String salesforceContactId) {
+
+        this.salesforceContactId = salesforceContactId;
     }
 }

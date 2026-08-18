@@ -3,6 +3,7 @@ package com.cblos.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "corporate_customer")
@@ -40,6 +41,19 @@ public class CorporateCustomer {
     @Column(name = "password")
     private String password;
 
+    @Column(name = "salesforce_account_id", length = 18)
+    private String salesforceAccountId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "salesforce_sync_status", nullable = false)
+    private SalesforceSyncStatus salesforceSyncStatus = SalesforceSyncStatus.NOT_STARTED;
+
+    @Column(name = "salesforce_sync_error", length = 2000)
+    private String salesforceSyncError;
+
+    @Column(name = "salesforce_last_sync_at")
+    private LocalDateTime salesforceLastSyncAt;
+
     public CorporateCustomer() {}
 
     public Integer getId() { return id; }
@@ -76,5 +90,45 @@ public class CorporateCustomer {
     @Transient
     public boolean isRegistrationPasswordConfigured() {
         return password != null && !password.isBlank();
+    }
+
+    public String getSalesforceAccountId() {
+        return salesforceAccountId;
+    }
+
+    public void setSalesforceAccountId(
+            String salesforceAccountId) {
+
+        this.salesforceAccountId = salesforceAccountId;
+    }
+
+    public SalesforceSyncStatus getSalesforceSyncStatus() {
+        return salesforceSyncStatus;
+    }
+
+    public void setSalesforceSyncStatus(
+            SalesforceSyncStatus salesforceSyncStatus) {
+
+        this.salesforceSyncStatus = salesforceSyncStatus;
+    }
+
+    public String getSalesforceSyncError() {
+        return salesforceSyncError;
+    }
+
+    public void setSalesforceSyncError(
+            String salesforceSyncError) {
+
+        this.salesforceSyncError = salesforceSyncError;
+    }
+
+    public LocalDateTime getSalesforceLastSyncAt() {
+        return salesforceLastSyncAt;
+    }
+
+    public void setSalesforceLastSyncAt(
+            LocalDateTime salesforceLastSyncAt) {
+
+        this.salesforceLastSyncAt = salesforceLastSyncAt;
     }
 }
