@@ -1,0 +1,136 @@
+<div class="repayment-shell">
+  <div class="repayment-card">
+    <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+      <div>
+        <p class="repayment-eyebrow mb-1">Customer Payment Desk</p>
+        <h4 class="fw-bold mb-0">Loan Repayment</h4>
+      </div>
+      <a class="btn btn-sm btn-outline-dark" [routerLink]="['/customer/dashboard', customerId]">
+        <i class="bi bi-arrow-left me-1"></i>Dashboard
+      </a>
+    </div>
+
+    @if (isLoading()) { <div class="loading-bar mb-3"></div> }
+
+    @if (account(); as acc) {
+      <div class="repayment-summary mb-4">
+        <div>
+          <span>Account</span>
+          <strong>{{ acc.accountNumber }}</strong>
+        </div>
+        <div>
+          <span>Principal</span>
+          <strong>{{ acc.principalAmount | number:'1.2-2' }}</strong>
+        </div>
+        <div>
+          <span>Unpaid Due</span>
+          <strong>{{ totalOutstanding() | number:'1.2-2' }}</strong>
+        </div>
+      </div>
+    }
+
+    <div class="mb-3">
+      <label class="form-label">Payment Type</label>
+      <select class="form-select" [value]="paymentType()" (change)="changePaymentType($any($event.target).value)">
+        <option value="MONTHLY">Monthly EMI</option>
+        <option value="FULL">Full Settlement</option>
+      </select>
+    </div>
+
+    @if (paymentType() === 'MONTHLY') {
+    <div class="mb-3">
+      <label class="form-label">Select Installment</label>
+      <select class="form-select" [value]="selectedInstallmentId() ?? ''" (change)="selectInstallment($any($event.target).value)"
+        [disabled]="unpaid().length === 0 || isLoading()">
+        <option value="" disabled>Select an unpaid installment</option>
+        
+        @if (unpaid().length > 0) {
+          @let currentMonth = unpaid()[0];
+          <option [value]="currentMonth.id">
+            #{{ currentMonth.installmentNumber }} - {{ currentMonth.dueDate | date:'mediumDate' }} - {{ currentMonth.installmentAmount | number:'1.2-2' }} (Immediate Due)
+          </option>
+        }
+      </select>
+    </div>
+    }
+
+    @if (paymentType() === 'MONTHLY' && selectedInstallment(); as inst) {
+      <div class="selected-panel mb-3">
+        <div>
+          <span>Selected EMI</span>
+          <strong>#{{ inst.installmentNumber }}</strong>
+        </div>
+        <div>
+          <span>Due Date</span>
+          <strong>{{ inst.dueDate | date:'mediumDate' }}</strong>
+        </div>
+        <div>
+          <span>Amount</span>
+          <strong>{{ inst.installmentAmount | number:'1.2-2' }}</strong>
+        </div>
+      </div>
+    }
+
+    @if (paymentType() === 'FULL') {
+      <div class="selected-panel mb-3">
+        <div>
+          <span>Settlement Mode</span>
+          <strong>Close loan</strong>
+        </div>
+        <div>
+          <span>Installments Covered</span>
+          <strong>{{ unpaid().length }}</strong>
+        </div>
+        <div>
+          <span>Total Amount</span>
+          <strong>{{ totalOutstanding() | number:'1.2-2' }}</strong>
+        </div>
+      </div>
+    }
+
+    @if (unpaid().length === 0 && !isLoading()) {
+      <div class="empty-state mb-3">
+        <i class="bi bi-check2-circle"></i>
+        <strong>No unpaid installments</strong>
+        <span class="small">This loan does not currently have pending repayment rows.</span>
+      </div>
+    }
+
+    @if (message()) { <div class="alert alert-success py-2">{{ message() }}</div> }
+    @if (error()) { <div class="alert alert-danger py-2">{{ error() }}</div> }
+
+    <div class="d-flex gap-2">
+      <button class="btn btn-dark" (click)="pay()" [disabled]="isPaying() || isLoading() || unpaid().length === 0">
+        <i class="bi bi-credit-card me-1"></i>{{ isPaying() ? 'Processing...' : 'Process Payment' }}
+      </button>
+      <a class="btn btn-outline-secondary" [routerLink]="['/customer/dashboard', customerId]">Abort</a>
+    </div>
+  </div>
+</div>
+
+
+@if (showSuccessPopup()) {
+  <div class="modal-blur-overlay" role="dialog" aria-modal="true">
+    <div class="success-payment-card">
+      
+      <div class="success-icon-shield">
+        <i class="bi bi-patch-check-fill"></i>
+      </div>
+      
+      <h4 class="success-modal-title">Payment Received</h4>
+      <p class="success-modal-subtitle">
+        {{ paymentType() === 'FULL' ? 'Your corporate facility package has been fully liquidated and closed.' : 'Your monthly installment allocation has been processed successfully.' }}
+      </p>
+
+      <div class="success-routing-footer">
+        <div class="mini-spinner"></div>
+        <span>Updating master ledger context...</span>
+      </div>
+
+      <div class="countdown-progress-track">
+        <div class="countdown-progress-fill"></div>
+      </div>
+
+    </div>
+  </div>
+}

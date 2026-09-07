@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrustEdge Commercial Bank - Credit Application</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #f4f6f9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .form-card { border: none; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+        .product-spec-box { border-left: 4px solid #0d6efd; background-color: #f8f9fa; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-dark bg-dark py-2 border-bottom border-secondary">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <i class="bi bi-shield-check text-primary me-2 fs-4"></i>
+                <span class="fw-bold text-uppercase text-white">TrustEdge Commercial Bank</span>
+            </a>
+            <span class="navbar-text text-muted small">Underwriting Processing Gateway</span>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                
+                <div class="card form-card p-4 p-md-5 bg-white">
+                    <div class="mb-4 border-bottom pb-3">
+                        <h3 class="fw-bold text-dark mb-1">Corporate Credit Application</h3>
+                        <p class="text-muted small">Step 1: Declare request values and facility terms</p>
+                    </div>
+
+                    <div class="product-spec-box p-3 rounded mb-4">
+                        <h6 class="fw-bold text-dark text-uppercase mb-2">
+                            <i class="bi bi-info-circle-fill text-primary me-1"></i> Selected Corporate Facility Spec
+                        </h6>
+                        
+                        <div th:if="${productType == 'COMMERCIAL_TERM_LOAN'}">
+                            <strong class="d-block text-primary">COMMERCIAL TERM LOAN</strong>
+                            <p class="small text-muted mb-0 mt-1">Best used for infrastructure acquisitions, heavy machinery investments, or construction extensions. Limits span <strong>₹10 Lakhs up to ₹50 Crores</strong> with an entry baseline interest scale of <strong>9.25% p.a.</strong></p>
+                        </div>
+                        
+                        <div th:if="${productType == 'WORKING_CAPITAL_LINE'}">
+                            <strong class="d-block text-warning-emphasis">WORKING CAPITAL LINE</strong>
+                            <p class="small text-muted mb-0 mt-1">Short-term configuration supporting daily operating cash flows, material procurement pipelines, and emergency staffing ledger outlays. Limits span <strong>₹2 Lakhs up to ₹10 Crores</strong> with a drawdown baseline interest scale of <strong>11.50% p.a.</strong></p>
+                        </div>
+                        
+                        <div th:if="${productType == 'COMMERCIAL_LINE_OF_CREDIT'}">
+                            <strong class="d-block text-info-emphasis">COMMERCIAL LINE OF CREDIT</strong>
+                            <p class="small text-muted mb-0 mt-1">Flexible banking shield. Draw structural operating funds dynamically up to predefined parameters, settling records to redraw again. Baseline interest scale runs at <strong>10.75% p.a.</strong> on utilized segments.</p>
+                        </div>
+                    </div>
+
+                    <form th:action="@{/customer/dashboard/{id}/apply(id=${customerId})}" th:object="${newLoan}" method="POST">
+                        
+                        <input type="hidden" name="productType" th:value="${productType}">
+                        <input type="hidden" th:field="*{loanType}">
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="loanAmount" class="form-label text-muted small fw-bold">Requested Funding Principle (INR ₹) *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light fw-bold">₹</span>
+                                    <input type="number" id="loanAmount" th:field="*{loanAmount}" class="form-control" placeholder="e.g. 5000000" min="100000" required>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="tenure" class="form-label text-muted small fw-bold">Payback Horizon Tenure (Months) *</label>
+                                <input type="number" id="tenure" th:field="*{requestedTenureMonths}" class="form-control" placeholder="e.g. 36" min="6" max="120" required>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-light rounded text-muted my-4 small" style="line-height: 1.4;">
+                            <i class="bi bi-shield-lock-fill text-success me-1"></i> Submitting this credit application automatically saves it into the core pipeline framework, transitioning your corporate workspace directly to <strong>Step 2 (Collateral Asset Security Declaration)</strong>.
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 border-top pt-3">
+                            <a th:href="@{/customer/dashboard//application/{applicationId}/collateral}" class="btn btn-light border btn-sm text-secondary px-3">Abort Application</a>
+                            <button type="submit" class="btn btn-primary btn-sm fw-bold px-4"> Proceed to Collateral</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

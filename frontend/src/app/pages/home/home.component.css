@@ -1,0 +1,227 @@
+.landing {
+  align-items: stretch;
+  background:
+    radial-gradient(circle at 78% 8%, rgba(214, 178, 94, 0.22), transparent 24rem),
+    radial-gradient(circle at 8% 12%, rgba(255, 255, 255, 0.06), transparent 22rem),
+    linear-gradient(145deg, #020817 0%, #081224 48%, #020817 100%);
+  color: #ffffff;
+  min-height: 100vh;
+  overflow: hidden;
+  padding: 5.5rem 1rem 4.5rem;
+  position: relative;
+}
+
+.landing > *:not(.ambient-grid):not(.status-launcher):not(.status-checker):not(.workspace-entry) {
+  position: relative;
+  z-index: 1;
+}
+
+.ambient-grid {
+  animation: gridDrift 18s linear infinite;
+  background-image:
+    linear-gradient(rgba(214, 178, 94, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(214, 178, 94, 0.045) 1px, transparent 1px);
+  background-size: 56px 56px;
+  inset: -4rem;
+  opacity: 0.42;
+  position: absolute;
+}
+
+.header-row {
+  align-items: center;
+  animation: riseIn 0.45s ease both;
+  display: block;
+  margin: 0 auto 2.25rem;
+  max-width: 1100px;
+}
+
+.hero {
+  flex: 1;
+  text-align: center;
+}
+
+.logo-title {
+  font-size: clamp(3rem, 9vw, 5.25rem);
+  font-weight: 900;
+  letter-spacing: 0;
+  margin: 0;
+  text-shadow: 0 18px 42px rgba(0, 0, 0, 0.4);
+}
+
+.text-skyblue {
+  background: linear-gradient(135deg, #fff2c2, #d6b25e 55%, #b98d35);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero-details {
+  animation: riseIn 0.55s ease 0.08s both;
+  margin: 0 auto 3.5rem;
+  max-width: 620px;
+  text-align: center;
+}
+
+.subtitle {
+  color: #edf1f7;
+  font-size: 1.35rem;
+  margin-bottom: 1.15rem;
+}
+
+.hero-desc {
+  color: #c5ccd8;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.hero-actions {
+  align-items: center;
+  backdrop-filter: blur(18px);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.02)),
+    rgba(8, 18, 36, 0.78);
+  border: 1px solid rgba(214, 178, 94, 0.24);
+  border-radius: 999px;
+  box-shadow: 0 22px 56px rgba(0, 0, 0, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  display: inline-flex;
+  gap: 0.65rem;
+  justify-content: center;
+  padding: 0.45rem;
+}
+
+.action-divider {
+  background: rgba(214, 178, 94, 0.26);
+  display: inline-block;
+  height: 2rem;
+  width: 1px;
+}
+
+.action-btn {
+  align-items: center;
+  border-radius: 999px;
+  display: inline-flex;
+  font-weight: 700;
+  gap: 0.45rem;
+  justify-content: center;
+  min-width: 140px;
+  padding: 0.82rem 1.8rem;
+  text-align: center;
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.action-btn:hover {
+  transform: translateY(-1px);
+}
+
+.login-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(214, 178, 94, 0.22);
+  color: #fff2c2;
+}
+
+.login-btn:hover {
+  background: rgba(214, 178, 94, 0.12);
+  border-color: rgba(214, 178, 94, 0.48);
+  color: #ffffff;
+}
+
+.register-btn {
+  background: linear-gradient(135deg, #fff2c2, #d6b25e 54%, #b98d35);
+  border: 1px solid rgba(255, 242, 194, 0.42);
+  box-shadow: 0 14px 30px rgba(214, 178, 94, 0.26);
+  color: #07101f;
+}
+
+.register-btn:hover {
+  box-shadow: 0 18px 38px rgba(214, 178, 94, 0.36);
+  color: #07101f;
+}
+
+.feature-card {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.045), transparent 54%),
+    radial-gradient(circle at top, rgba(214, 178, 94, 0.08), transparent 10rem),
+    #081224;
+  border: 1px solid rgba(214, 178, 94, 0.16);
+  border-radius: 8px;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
+  padding: 1.75rem;
+  text-align: center;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.feature-card:hover {
+  border-color: rgba(214, 178, 94, 0.55);
+  box-shadow: 0 24px 52px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+.feature-card i {
+  color: #f1c76a;
+  font-size: 2.15rem;
+  margin-bottom: 1rem;
+}
+
+.feature-card h3 {
+  font-size: 1.05rem;
+  margin-bottom: 0.5rem;
+}
+
+.feature-card p {
+  color: #c5ccd8;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .header-row {
+    display: block;
+  }
+
+  .features {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .landing {
+    padding-top: 5.8rem;
+  }
+
+  .hero-actions {
+    align-items: stretch;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    display: grid;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .action-divider {
+    display: none;
+  }
+
+  .features {
+    grid-template-columns: 1fr;
+  }
+}
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes gridDrift {
+  to {
+    transform: translate3d(48px, 48px, 0);
+  }
+}

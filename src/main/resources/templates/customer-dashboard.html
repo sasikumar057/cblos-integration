@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrustEdge Commercial Bank - Corporate Portal</title>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+	rel="stylesheet">
+<style>
+body {
+	background-color: #f4f6f9;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+		Helvetica, Arial, sans-serif;
+}
+
+.navbar-brand-text {
+	font-weight: 700;
+	letter-spacing: 0.5px;
+}
+
+.banking-card {
+	border: none;
+	border-radius: 8px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+	transition: transform 0.2s;
+}
+
+.banking-card:hover {
+	transform: translateY(-2px);
+}
+
+.product-badge {
+	font-size: 0.75rem;
+	letter-spacing: 0.5px;
+	font-weight: 600;
+}
+
+.table-container {
+	background: #ffffff;
+	border-radius: 8px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* 🟢 Smooth hover transitions for the dynamic navigation bar sign-out mechanism */
+.btn-nav-logout {
+	background: transparent;
+	border: 1px solid rgba(220, 53, 69, 0.4);
+	color: #ea868f;
+	font-weight: 600;
+	font-size: 0.75rem;
+	transition: all 0.2s ease-in-out;
+}
+.btn-nav-logout:hover {
+	background-color: #dc3545;
+	color: #ffffff;
+	border-color: #dc3545;
+	transform: translateY(-1px);
+}
+</style>
+</head>
+<body>
+
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top border-bottom border-secondary py-2">
+		<div class="container">
+			<a class="navbar-brand d-flex align-items-center" href="#"> <i
+				class="bi bi-shield-check text-primary me-2 fs-4"></i> <span
+				class="navbar-brand-text text-uppercase text-white">TrustEdge
+					Commercial Bank</span>
+			</a>
+			
+			<div class="d-flex align-items-center gap-3 text-light">
+				<div>
+					<span class="me-1 small text-muted">Welcome, Corporate Partner:</span> 
+					<span class="fw-bold text-info" th:text="${customer.companyName}">Demo Corp</span>
+				</div>
+				
+				<form th:action="@{/logout}" method="POST" class="m-0 p-0">
+					<button type="submit" class="btn btn-sm btn-nav-logout px-3 py-1.5 rounded text-uppercase tracking-wide shadow-sm">
+						<i class="bi bi-box-arrow-right me-1"></i> Sign Out
+					</button>
+				</form>
+			</div>
+		</div>
+	</nav>
+
+	<div class="container my-4">
+
+		<div class="row mb-4">
+			<div class="col-12">
+				<div
+					class="card bg-white border-start border-primary border-4 shadow-sm py-2">
+					<div
+						class="card-body d-flex flex-wrap justify-content-between align-items-center">
+						<div>
+							<h6 class="text-uppercase text-muted mb-1 small fw-bold">Corporate
+								Profile Context</h6>
+							<h4 class="mb-0 text-dark fw-bold"
+								th:text="${customer.companyName}">Demo Corp Ltd.</h4>
+						</div>
+						<div class="d-flex gap-4 my-2">
+							<div>
+								<span class="d-block small text-muted">Tax ID / PAN</span> <strong
+									class="text-dark" th:text="${customer.taxId}">CIN-12948102</strong>
+							</div>
+							<div>
+								<span class="d-block small text-muted">Registration
+									Number</span> <strong class="text-dark"
+									th:text="${customer.id != null ? customer.id : 'N/A'}">REG-992104</strong>
+							</div>
+							<div>
+								<span class="d-block small text-muted">Verification
+									Status</span> <span class="badge rounded-pill mt-1"
+									th:classappend="${customer.status == 'APPROVED' ? 'bg-success' : 'bg-warning text-dark'}"
+									th:text="${customer.status}">PENDING_VERIFICATION</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<h4 class="mb-3 text-secondary fw-bold d-flex align-items-center">
+			<i class="bi bi-grid-1x2-fill me-2 text-primary"></i> Available
+			Corporate Financial Facilities
+		</h4>
+
+		<div class="row g-3 mb-5">
+			<div class="col-md-4">
+				<div
+					class="card h-100 banking-card border-top border-primary border-3 bg-white">
+					<div class="card-body d-flex flex-column">
+						<div class="d-flex justify-content-between align-items-start mb-2">
+							<h5 class="card-title fw-bold text-dark mb-0">Commercial
+								Term Loan</h5>
+							<span
+								class="badge bg-primary-subtle text-primary product-badge text-uppercase">Term
+								Asset</span>
+						</div>
+						<p class="text-muted small flex-grow-1">Designed for massive
+							infrastructure capital acquisitions, plant machinery procurement,
+							or business site structural expansion.</p>
+						<div class="bg-light p-2 rounded mb-3 small">
+							<div class="d-flex justify-content-between">
+								<span>Limits:</span><strong>₹10L - ₹50 Cr</strong>
+							</div>
+							<div class="d-flex justify-content-between">
+								<span>Base Rate:</span><strong class="text-success">9.25%
+									p.a.</strong>
+							</div>
+						</div>
+						<button class="btn btn-outline-primary btn-sm w-100 fw-bold"
+							th:onclick="|location.href='@{/customer/dashboard/{id}/apply-form(id=${customer.id}, productType='COMMERCIAL_TERM_LOAN')}'|">
+							<i class="bi bi-file-earmark-plus me-1"></i> Start Application
+						</button>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-4">
+				<div
+					class="card h-100 banking-card border-top border-warning border-3 bg-white">
+					<div class="card-body d-flex flex-column">
+						<div class="d-flex justify-content-between align-items-start mb-2">
+							<h5 class="card-title fw-bold text-dark mb-0">Working
+								Capital Line</h5>
+							<span
+								class="badge bg-warning-subtle text-warning-emphasis product-badge text-uppercase">Liquidity</span>
+						</div>
+						<p class="text-muted small flex-grow-1">Short-term operating
+							credit asset to manage day-to-day transaction flows, raw
+							materials ledger, and emergency employee payroll gaps.</p>
+						<div class="bg-light p-2 rounded mb-3 small">
+							<div class="d-flex justify-content-between">
+								<span>Limits:</span><strong>₹2L - ₹10 Cr</strong>
+							</div>
+							<div class="d-flex justify-content-between">
+								<span>Base Rate:</span><strong class="text-success">11.50%
+									p.a.</strong>
+							</div>
+						</div>
+						<button
+							class="btn btn-outline-warning btn-sm w-100 fw-bold text-dark"
+							th:onclick="|location.href='@{/customer/dashboard/{id}/apply-form(id=${customer.id}, productType='WORKING_CAPITAL_LINE')}'|">
+							<i class="bi bi-file-earmark-plus me-1"></i> Start Application
+						</button>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-4">
+				<div
+					class="card h-100 banking-card border-top border-info border-3 bg-white">
+					<div class="card-body d-flex flex-column">
+						<div class="d-flex justify-content-between align-items-start mb-2">
+							<h5 class="card-title fw-bold text-dark mb-0">Commercial
+								Line of Credit</h5>
+							<span
+								class="badge bg-info-subtle text-info-emphasis product-badge text-uppercase">Flexible</span>
+						</div>
+						<p class="text-muted small flex-grow-1">Flexible corporate
+							safety net. Draw funds up to your limit at any time, repay them,
+							and draw again. Interest is charged only on the exact amount
+							used.</p>
+						<div class="bg-light p-2 rounded mb-3 small">
+							<div class="d-flex justify-content-between">
+								<span>Limits:</span><strong>₹5L - ₹25 Cr</strong>
+							</div>
+							<div class="d-flex justify-content-between">
+								<span>Base Rate:</span><strong class="text-success">10.75%
+									p.a.</strong>
+							</div>
+						</div>
+						<button
+							class="btn btn-outline-info btn-sm w-100 fw-bold text-dark"
+							th:onclick="|location.href='@{/customer/dashboard/{id}/apply-form(id=${customer.id}, productType='COMMERCIAL_LINE_OF_CREDIT')}'|">
+							<i class="bi bi-file-earmark-plus me-1"></i> Start Application
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="table-container p-4 bg-white mb-5">
+			<h5
+				class="fw-bold text-dark mb-3 border-bottom pb-2 d-flex align-items-center">
+				<i class="bi bi-clock-history text-warning me-2"></i> Underwriting
+				Review & Application Pipeline
+			</h5>
+			<div class="table-responsive">
+				<table class="table table-hover align-middle mb-0">
+					<thead class="table-light text-secondary small text-uppercase">
+						<tr>
+							<th>Application ID</th>
+							<th>Credit Facility Type</th>
+							<th>Principal Requested</th>
+							<th>Term Setup</th>
+							<th>Filing Date</th>
+							<th class="text-center">Status Window</th>
+						</tr>
+					</thead>
+					<tbody class="small text-dark">
+						<tr th:if="${#lists.isEmpty(activeApplications)}">
+							<td colspan="6" class="text-center py-4 text-muted italic">No
+								active loan requests pending verification at this time.</td>
+						</tr>
+						<tr th:each="app : ${activeApplications}">
+							<td><strong class="text-monospace"
+								th:text="'#APP-' + ${app.applicationId}">#APP-001</strong></td>
+							<td class="fw-bold" th:text="${app.loanType}">COMMERCIAL_TERM_LOAN</td>
+							<td class="fw-bold text-primary"
+								th:text="'₹' + ${#numbers.formatDecimal(app.loanAmount, 1, 'COMMA', 2, 'POINT')}">₹5,00,000</td>
+							<td th:text="${app.requestedTenureMonths} + ' Months'">36
+								Months</td>
+							<td
+								th:text="${app.submissionDate != null ? app.submissionDate : 'Processing...'}">2026-06-03</td>
+							<td class="text-center"><span class="badge"
+								th:classappend="${app.status == 'APPROVED' ? 'bg-success text-white' : 
+                 app.status == 'REJECTED' ? 'bg-danger text-white' : 
+                 app.status == 'UNDER_REVIEW' ? 'bg-info text-dark' : 
+                 app.status == 'PENDING' ? 'bg-warning text-dark' : 'bg-secondary text-white'}"
+								th:text="${app.status != null ? app.status : 'No Status'}">UNDER_REVIEW</span>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<div class="table-container p-4 bg-white">
+			<h5
+				class="fw-bold text-dark mb-3 border-bottom pb-2 d-flex align-items-center">
+				<i class="bi bi-wallet2 text-success me-2"></i> Disbursed Accounts
+				Ledger (Active Loan Repayments)
+			</h5>
+			<div class="table-responsive">
+				<table class="table table-hover align-middle mb-0">
+					<thead class="table-light text-secondary small text-uppercase">
+						<tr>
+							<th>Account/Loan ID</th>
+							<th>Facility Type</th>
+							<th>Disbursed Principal</th>
+							<th>Tenure Period</th>
+							<th>Settlement Pipeline Source</th>
+							<th class="text-center">Action</th>
+						</tr>
+					</thead>
+					<tbody class="small text-dark">
+						<tr th:if="${#lists.isEmpty(approvedLoans)}">
+							<td colspan="6" class="text-center py-4 text-muted italic">No outstanding loan schedules found. Select an option from the catalog layout above to get started.</td>
+						</tr>
+						<tr th:each="loan : ${approvedLoans}">
+							<td>
+								<span class="badge bg-dark font-monospace" th:text="${loan.accountNumber != null ? loan.accountNumber : 'LN-' + loan.id}">LN-2048</span>
+							</td>
+							<td class="fw-bold text-uppercase">
+								<span th:text="${loan.loanApplication != null ? loan.loanApplication.loanType : 'COMMERCIAL_FACILITY'}">WORKING_CAPITAL_LINE</span>
+							</td>
+							<td class="fw-bold text-success"
+								th:text="'₹' + ${#numbers.formatDecimal(loan.principalAmount, 1, 'COMMA', 2, 'POINT')}">₹25,00,000.00</td>
+							<td>
+								<span th:text="${loan.loanApplication != null ? loan.loanApplication.requestedTenureMonths + ' Mos' : 'N/A'}">24 Mos</span>
+							</td>
+							<td>
+								<span class="text-muted"><i class="bi bi-bank me-1"></i> HSBC Settlement Account (*4820)</span>
+							</td>
+							<td class="text-center">
+								<a th:href="@{/customer/dashboard/loan/repay-page/{id}(id=${loan.id})}"
+								   class="btn btn-sm btn-success fw-bold px-3 py-1"> 
+									<i class="bi bi-arrow-right-circle me-1"></i> Repay Instalment
+								</a>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+	</div>
+
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

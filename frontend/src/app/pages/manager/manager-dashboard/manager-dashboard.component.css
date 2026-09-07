@@ -1,0 +1,91 @@
+.cursor-pointer { cursor: pointer; }
+
+.portfolio-panel {
+  border-color: rgba(214, 178, 94, 0.22);
+}
+
+.portfolio-metric {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.045), transparent 58%),
+    radial-gradient(circle at top right, rgba(214, 178, 94, 0.08), transparent 9rem),
+    rgba(5, 12, 26, 0.92);
+  border: 1px solid rgba(214, 178, 94, 0.16);
+  border-radius: 8px;
+  min-height: 118px;
+  overflow: hidden;
+  padding: 1rem;
+  position: relative;
+}
+
+.portfolio-metric span {
+  color: #c5ccd8;
+  display: block;
+  font-size: 0.74rem;
+  font-weight: 900;
+  margin-bottom: 0.45rem;
+  text-transform: uppercase;
+}
+
+.portfolio-metric strong {
+  color: #ffffff;
+  display: block;
+  font-size: clamp(1.15rem, 2vw, 1.65rem);
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.portfolio-metric small {
+  color: #f5deb0;
+  display: block;
+  font-weight: 800;
+  margin-top: 0.45rem;
+}
+
+.portfolio-metric i {
+  bottom: 0.75rem;
+  color: rgba(214, 178, 94, 0.28);
+  font-size: 2.4rem;
+  position: absolute;
+  right: 0.9rem;
+}
+
+.portfolio-metric.paid {
+  border-color: rgba(70, 211, 154, 0.24);
+}
+
+.portfolio-metric.paid i {
+  color: rgba(70, 211, 154, 0.28);
+}
+
+.portfolio-metric.remaining {
+  border-color: rgba(245, 184, 75, 0.28);
+}
+
+.portfolio-metric.remaining i {
+  color: rgba(245, 184, 75, 0.3);
+}
+
+.portfolio-metric.due {
+  border-color: rgba(214, 178, 94, 0.3);
+}
+
+.portfolio-table {
+  max-height: 340px;
+}
+
+.portfolio-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.portfolio-account {
+  background: rgba(214, 178, 94, 0.1);
+  border: 1px solid rgba(214, 178, 94, 0.22);
+  border-radius: 999px;
+  color: #fff2c2;
+  display: inline-flex;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 0.28rem 0.62rem;
+}

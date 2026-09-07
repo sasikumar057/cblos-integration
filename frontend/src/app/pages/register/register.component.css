@@ -1,0 +1,78 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 16% 12%, rgba(214, 178, 94, 0.16), transparent 24rem),
+    radial-gradient(circle at 88% 72%, rgba(255, 255, 255, 0.055), transparent 22rem),
+    linear-gradient(145deg, #020817 0%, #081224 54%, #020817 100%);
+}
+
+.register-shell {
+  padding: 4rem 1.25rem;
+}
+
+.register-card {
+  backdrop-filter: blur(16px);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 54%),
+    radial-gradient(circle at top right, rgba(214, 178, 94, 0.08), transparent 14rem),
+    rgba(8, 18, 36, 0.94);
+  border: 1px solid rgba(214, 178, 94, 0.2);
+  border-radius: 8px;
+  box-shadow: 0 28px 72px rgba(0, 0, 0, 0.36);
+  padding: 2.25rem;
+}
+
+.register-header {
+  border-bottom: 1px solid rgba(214, 178, 94, 0.18);
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.25rem;
+  text-align: left;
+}
+
+.register-header h3 {
+  color: #ffffff;
+  font-weight: 800;
+  margin-bottom: 0.35rem;
+}
+
+.register-header p {
+  color: #c5ccd8;
+  margin: 0;
+}
+
+h6 {
+  border-bottom: 1px solid rgba(214, 178, 94, 0.18);
+  color: #d6b25e;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.form-label {
+  color: #edf1f7;
+}
+
+.form-control,
+.form-select {
+  background-color: rgba(5, 12, 26, 0.9);
+  border-color: rgba(214, 178, 94, 0.16);
+  border-radius: 8px;
+  color: #ffffff;
+}
+
+.form-control:focus,
+.form-select:focus {
+  background-color: #050c1a;
+  border-color: #d6b25e;
+  box-shadow: 0 0 0 0.2rem rgba(214, 178, 94, 0.18);
+  color: #ffffff;
+}
+
+.register-submit {
+  font-weight: 700;
+  margin-top: 0.5rem;
+}

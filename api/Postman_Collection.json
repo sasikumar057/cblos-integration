@@ -1,0 +1,925 @@
+{
+  "info": {
+    "_postman_id": "cblos-loan-system-api",
+    "name": "CBLOS Loan System API",
+    "description": "Complete API Testing Collection for Corporate Loan Management System",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "🔐 Authentication",
+      "item": [
+        {
+          "name": "Get Current User Info",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{officer_username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{officer_password}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "me"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "👨‍💼 Loan Officers",
+      "item": [
+        {
+          "name": "Register Loan Officer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{officer_username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{officer_password}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"employeeId\": \"EMP-NEW-001\",\n  \"name\": \"New Officer\",\n  \"designation\": \"Senior Loan Officer\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/officers/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "officers", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Officer by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{officer_username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{officer_password}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/officers/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "officers", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Officers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{officer_username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{officer_password}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/officers/all",
+              "host": ["{{base_url}}"],
+              "path": ["api", "officers", "all"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🏢 Corporate Customers",
+      "item": [
+        {
+          "name": "Onboard New Customer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{officer_username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{officer_password}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"taxId\": \"TAX-NEW-2026\",\n  \"companyName\": \"New Company Ltd\",\n  \"industryType\": \"Technology\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/customers/onboard",
+              "host": ["{{base_url}}"],
+              "path": ["api", "customers", "onboard"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Customer by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{customer_username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{customer_password}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/customers/{{customerId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "customers", "{{customerId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Customers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{officer_username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{officer_password}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/customers/all",
+              "host": ["{{base_url}}"],
+              "path": ["api", "customers", "all"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📋 Loan Applications",
+      "item": [
+        {
+          "name": "Submit Loan Application",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{customer_username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{customer_password}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"requestedAmount\": 750000.00,\n  \"tenure\": 60,\n  \"purpose\": \"Business Expansion\",\n  \"status\": \"APPLIED\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/loans/submit/{{customerId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "loans", "submit", "{{customerId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Application Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{customer_username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{customer_password}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/loans/status/{{applicationId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "loans", "status", "{{applicationId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "View Application Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{customer_username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{customer_password}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/loans/{{applicationId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "loans", "{{applicationId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Applications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{officer_username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{officer_password}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/loans/all",
+              "host": ["{{base_url}}"],
+              "path": ["api", "loans", "all"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📄 Documents",
+      "item": [
+        {
+          "name": "Upload Document",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{customer_username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{customer_password}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "path/to/your/document.pdf"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/documents/upload/{{applicationId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "documents", "upload", "{{applicationId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Documents for Application",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{customer_username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{customer_password}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/documents/application/{{applicationId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "documents", "application", "{{applicationId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Download Document",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{customer_username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{customer_password}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/documents/download/{{documentId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "documents", "download", "{{documentId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Validate Document",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{officer_username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{officer_password}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/documents/validate/{{documentId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "documents", "validate", "{{documentId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Document Validation Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{customer_username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{customer_password}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/documents/validate/{{documentId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "documents", "validate", "{{documentId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Validate All Documents",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{officer_username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{officer_password}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/documents/validate-all/{{applicationId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "documents", "validate-all", "{{applicationId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Validation Report",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{customer_username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{customer_password}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/documents/validation-report/{{applicationId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "documents", "validation-report", "{{applicationId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🏦 Collateral",
+      "item": [
+        {
+          "name": "Add Collateral",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{customer_username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{customer_password}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"assetType\": \"Real Estate\",\n  \"assetValue\": 2500000.00,\n  \"description\": \"Commercial building in prime location\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/collateral/add/{{applicationId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "collateral", "add", "{{applicationId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Collateral for Loan",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{customer_username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{customer_password}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/collateral/loan/{{applicationId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "collateral", "loan", "{{applicationId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "💳 Credit Assessment",
+      "item": [
+        {
+          "name": "Evaluate Credit",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{officer_username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{officer_password}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/credit/evaluate/{{applicationId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "credit", "evaluate", "{{applicationId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Risk Score",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{officer_username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{officer_password}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/credit/risk-score/{{applicationId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "credit", "risk-score", "{{applicationId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "✅ Approvals",
+      "item": [
+        {
+          "name": "Approve Loan",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{officer_username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{officer_password}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/approvals/approve/{{applicationId}}?comments=Strong%20financial%20profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "approvals", "approve", "{{applicationId}}"],
+              "query": [
+                {
+                  "key": "comments",
+                  "value": "Strong financial profile"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reject Loan",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{officer_username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{officer_password}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/approvals/reject/{{applicationId}}?comments=Insufficient%20collateral%20coverage",
+              "host": ["{{base_url}}"],
+              "path": ["api", "approvals", "reject", "{{applicationId}}"],
+              "query": [
+                {
+                  "key": "comments",
+                  "value": "Insufficient collateral coverage"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "💰 Disbursement",
+      "item": [
+        {
+          "name": "Generate Disbursement Report",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{officer_username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{officer_password}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/disbursement/report",
+              "host": ["{{base_url}}"],
+              "path": ["api", "disbursement", "report"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔄 Repayments",
+      "item": [
+        {
+          "name": "Get Repayment Schedule",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{officer_username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{officer_password}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/repayments/schedule/{{accountId}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "repayments", "schedule", "{{accountId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Record Payment",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{officer_username}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{officer_password}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/repayments/account/{{accountId}}/pay/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "repayments", "account", "{{accountId}}", "pay", "1"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:2727"
+    },
+    {
+      "key": "officer_username",
+      "value": "officer1@cblos.com"
+    },
+    {
+      "key": "officer_password",
+      "value": "Officer@123"
+    },
+    {
+      "key": "customer_username",
+      "value": "customer1@abc.com"
+    },
+    {
+      "key": "customer_password",
+      "value": "Customer@123"
+    },
+    {
+      "key": "manager_username",
+      "value": "manager1@cblos.com"
+    },
+    {
+      "key": "manager_password",
+      "value": "Manager@123"
+    },
+    {
+      "key": "customerId",
+      "value": "1"
+    },
+    {
+      "key": "applicationId",
+      "value": "1"
+    },
+    {
+      "key": "documentId",
+      "value": "1"
+    },
+    {
+      "key": "accountId",
+      "value": "1"
+    }
+  ]
+}

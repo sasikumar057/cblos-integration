@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrustEdge Commercial Bank - Collateral Declaration</title>
+    <!-- Bootstrap 5 CDN Framework -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap System Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #f4f6f9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .navbar-brand-text { font-weight: 700; letter-spacing: 0.5px; }
+        .wizard-card { border: none; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+        .step-indicator { font-size: 0.8rem; font-weight: 700; text-uppercase: uppercase; letter-spacing: 0.5px; }
+    </style>
+</head>
+<body>
+
+    <!-- 🏛️ CORPORATE HEADER NAVBAR -->
+    <nav class="navbar navbar-dark bg-dark py-2 border-bottom border-secondary">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <i class="bi bi-shield-check text-primary me-2 fs-4"></i>
+                <span class="navbar-brand-text text-uppercase text-white">TrustEdge Commercial Bank</span>
+            </a>
+            <span class="navbar-text text-info fw-bold small"><i class="bi bi-lock-fill me-1"></i> Secure Document Gateway</span>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                
+                <!-- PROGRESS TRAIL PROGRESS TRACKER WINDOW -->
+                <div class="d-flex justify-content-between align-items-center mb-4 px-2">
+                    <span class="step-indicator text-muted"><i class="bi bi-check-circle-fill text-success"></i> Step 1: Request Profile</span>
+                    <div class="flex-grow-1 border-top mx-3 border-2 border-success-subtle"></div>
+                    <span class="step-indicator text-primary fw-bold"><i class="bi bi-record-circle-fill"></i> Step 2: Anchor Asset Security</span>
+                </div>
+
+                <!-- MAIN CARD FORM WRAPPER -->
+                <div class="card wizard-card p-4 p-md-5 bg-white">
+                    <div class="mb-4">
+                        <h4 class="fw-bold text-dark mb-1">Asset Security & Collateral Specification</h4>
+                        <p class="text-muted small">
+                            Your underwriting payload file has been recorded successfully under reference key: 
+                            <span class="badge bg-dark font-monospace" th:text="'#APP-' + ${applicationId}">#APP-MockID</span>. 
+                            Please declare your tracking asset particulars below to complete your application.
+                        </p>
+                    </div>
+
+                    <!-- SECURE ASSET MAPPING ENTRY ACTION -->
+                    <form th:action="@{/customer/dashboard/application/{id}/collateral/save(id=${applicationId})}" method="POST">
+                        
+                        <!-- Internal System Default Handlers -->
+                        <input type="hidden" name="verificationStatus" value="PENDING">
+
+                        <div class="row g-3">
+                            <!-- COLLATERAL TYPE SELECTION BOX -->
+                            <div class="col-md-6">
+                                <label for="collateralType" class="form-label small fw-bold text-secondary">Secured Asset Classification *</label>
+                                <select id="collateralType" name="collateralType" class="form-select form-select-sm" required onchange="updatePlaceholderText()">
+                                    <option value="" selected disabled>Select collateral item type...</option>
+                                    <option value="Real Estate">Corporate Real Estate / Commercial Property</option>
+                                    <option value="Equipment">Heavy Plant Machinery / Industrial Equipment</option>
+                                    <option value="Inventory">Liquid Inventory / Raw Materials Ledger</option>
+                                    <option value="Vehicles">Logistics Fleet Fleet Assets / Commercial Vehicles</option>
+                                </select>
+                            </div>
+
+                            <!-- VALUATION MARKERS -->
+                            <div class="col-md-6">
+                                <label for="estimatedValue" class="form-label small fw-bold text-secondary">Estimated Asset Market Value (INR ₹) *</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-light fw-bold">₹</span>
+                                    <input type="number" id="estimatedValue" name="estimatedValue" class="form-control" placeholder="e.g. 5000000" min="1" step="0.01" required>
+                                </div>
+                            </div>
+
+                            <!-- ASSET UNIQUE REFERENCE IDENTIFIER FIELD -->
+                            <div class="col-12">
+                                <label for="assetReferenceNumber" class="form-label small fw-bold text-secondary">Legal Registration/Reference Identification Key *</label>
+                                <input type="text" id="assetReferenceNumber" name="assetReferenceNumber" class="form-control form-control-sm text-uppercase" 
+                                       placeholder="e.g. Property Registration Deed ID, Vehicle VIN Number, Machinery Serial Index..." required>
+                                <div class="form-text text-muted" style="font-size: 0.7rem;" id="referenceHelperText">
+                                    Provide the official government registration, serial number, or structural mapping catalog code for validation checks.
+                                </div>
+                            </div>
+
+                            <!-- ASSET STRUCTURAL DESCRIPTION CAPTURE TEXTAREA -->
+                            <div class="col-12">
+                                <label for="description" class="form-label small fw-bold text-secondary">Comprehensive Asset Physical Description</label>
+                                <textarea id="description" name="description" class="form-control form-control-sm" rows="4" 
+                                          placeholder="Specify dimensions, address locations, current age, brand configurations, or asset constraint details clearly..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- SUBMIT AND CANCEL TRIGGERS BUTTON PANEL -->
+                        <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                            <span class="text-danger small fw-bold"><i class="bi bi-exclamation-triangle-fill me-1"></i> Field entries are audited.</span>
+                            <div>
+                                <button type="submit" class="btn btn-success px-4 btn-sm fw-bold shadow-sm">
+                                    <i class="bi bi-shield-lock-fill me-1"></i> Seal Loan Application Package
+                                </button>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Interface View Interactive Dynamic Script Helper -->
+    <script>
+        function updatePlaceholderText() {
+            const select = document.getElementById('collateralType');
+            const refInput = document.getElementById('assetReferenceNumber');
+            const helper = document.getElementById('referenceHelperText');
+            
+            if (select.value === 'Real Estate') {
+                refInput.placeholder = "e.g. PROPERTY SURVEY DEED REGISTER NUMBER (GLR Index)";
+                helper.innerHTML = "Specify official sub-registrar property filing indicators, site mapping codes, and zone registry stamps.";
+            } else if (select.value === 'Equipment') {
+                refInput.placeholder = "e.g. MANUFACTURER EQUIPMENT SERIAL STAMP (OEM-ID)";
+                helper.innerHTML = "Specify machinery fabrication series codes, model design indices, and manufacturing plant signatures.";
+            } else if (select.value === 'Vehicles') {
+                refInput.placeholder = "e.g. CHASSIS NUMBER / CHASSIS VIN MATCH KEY";
+                helper.innerHTML = "Enter the 17-character unique factory Vehicle Identification Number stamped into structural engine brackets.";
+            } else {
+                refInput.placeholder = "e.g. INVENTORY LEDGER INVOICE BATCH TRACKER";
+                helper.innerHTML = "Declare formal warehouse receipt keys or global audit verification identifier tracking parameters.";
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,294 @@
+<nav class="navbar navbar-dark customer-nav sticky-top">
+  <div class="container d-flex justify-content-between align-items-center">
+    <span class="navbar-brand text-white mb-0">
+      <i class="bi bi-shield-check text-primary me-2"></i> CBLOS
+    </span>
+    <div class="d-flex align-items-center gap-3 text-light dashboard-actions">
+      <span class="small">Welcome, <strong class="text-info">{{ customer()?.companyName }}</strong></span>
+      @if (lastRefreshed()) { <span class="last-refresh">Last refreshed {{ lastRefreshed() }}</span> }
+      <button class="btn btn-sm nav-action-btn refresh-action" type="button" (click)="refresh()" [disabled]="isLoading()">
+        <i class="bi bi-arrow-clockwise me-1"></i>{{ isLoading() ? 'Refreshing...' : 'Refresh' }}
+      </button>
+      <button class="btn btn-sm nav-action-btn signout-action" (click)="logout()">
+        <i class="bi bi-box-arrow-right me-1"></i>Sign Out
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div class="container customer-shell my-4">
+  @if (message()) { <div class="alert alert-success py-2">{{ message() }}</div> }
+  @if (error()) { <div class="alert alert-danger py-2">{{ error() }}</div> }
+  @if (isLoading()) { <div class="loading-bar mb-3"></div> }
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+      <div class="stat-card"><span>Applications</span><strong>{{ dashboardStats().total }}</strong><i class="bi bi-folder2-open"></i></div>
+    </div>
+    <div class="col-md-3 col-6">
+      <div class="stat-card"><span>Under Review</span><strong>{{ dashboardStats().underReview }}</strong><i class="bi bi-search"></i></div>
+    </div>
+    <div class="col-md-3 col-6">
+      <div class="stat-card"><span>Rejected</span><strong>{{ dashboardStats().rejected }}</strong><i class="bi bi-x-circle"></i></div>
+    </div>
+    <div class="col-md-3 col-6">
+      <div class="stat-card"><span>Active Loans</span><strong>{{ dashboardStats().activeLoans }}</strong><i class="bi bi-cash-coin"></i></div>
+    </div>
+  </div>
+
+  <div class="profile-card mb-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+      <div>
+        <h6 class="text-muted text-uppercase small mb-1">Corporate Profile</h6>
+        <h4 class="mb-0 fw-bold">{{ customer()?.companyName }}</h4>
+      </div>
+      <div class="d-flex gap-4">
+        <div><span class="small text-muted d-block">Tax ID</span><strong>{{ customer()?.taxId }}</strong></div>
+        <div>
+          <span class="small text-muted d-block">Status</span>
+          <span [class]="statusClass(customer()?.status)">{{ statusText(customer()?.status) }}</span>
+        </div>
+        <div>
+          <span class="small text-muted d-block">Portal</span>
+          <strong><span class="status-dot"></span>Ready</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <div>
+      <h5>Loan Product Catalog</h5>
+      <span>Choose the facility that matches your business need.</span>
+    </div>
+    <div class="filter-field">
+      <i class="bi bi-search"></i>
+      <input class="form-control form-control-sm" placeholder="Search loan products"
+        [value]="productSearch()" (input)="productSearch.set($any($event.target).value)" />
+    </div>
+  </div>
+  <div class="row g-3 mb-4">
+    @for (p of filteredProducts(); track p.id) {
+      <div class="col-md-4">
+        <div class="product-card h-100">
+          <span class="badge bg-primary-subtle text-primary mb-2 product-badge">{{ p.productName }}</span>
+          <p class="small text-muted flex-grow-1">{{ p.description }}</p>
+          <div class="small text-muted mb-3">
+            <div>Amount: {{ p.minLoanAmount | number:'1.0-0' }} - {{ p.maxLoanAmount | number:'1.0-0' }}</div>
+            <div>Tenure: {{ p.minTenureMonths }} - {{ p.maxTenureMonths }} months</div>
+            <div>Rate: {{ p.defaultInterestRate }}%</div>
+          </div>
+          <button class="btn btn-sm btn-primary product-action" (click)="apply(p.productName!)">Start Application</button>
+        </div>
+      </div>
+    }
+    @if (products().length === 0 && !isLoading()) {
+      <div class="col-12">
+        <div class="empty-state">
+          <i class="bi bi-journal-text"></i>
+          <strong>No loan products available</strong>
+          <span class="small">Products will appear here when the bank publishes them.</span>
+        </div>
+      </div>
+    }
+    @if (products().length > 0 && filteredProducts().length === 0) {
+      <div class="col-12">
+        <div class="empty-state">
+          <i class="bi bi-search"></i>
+          <strong>No matching products</strong>
+          <span class="small">Try another product name or keyword.</span>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="section-header">
+    <div>
+      <h5>Application Pipeline</h5>
+      <span>Continue drafts, track review, or clear closed items.</span>
+    </div>
+    <select class="form-select form-select-sm status-filter" [value]="applicationStatusFilter()"
+      (change)="applicationStatusFilter.set($any($event.target).value)">
+      <option value="ALL">All statuses</option>
+      @for (status of applicationStatuses(); track status) {
+        <option [value]="status">{{ status }}</option>
+      }
+    </select>
+  </div>
+  <div class="data-card mb-4">
+    @if (activeApplications().length === 0) {
+      <div class="empty-state">
+        <i class="bi bi-file-earmark-plus"></i>
+        <strong>No active applications</strong>
+        <span class="small">Choose a product above to start a loan application.</span>
+      </div>
+    } @else {
+      <table class="table table-sm mb-0">
+        <thead><tr><th>ID</th><th>Type</th><th>Amount</th><th>Status</th><th>Progress</th><th>Actions</th></tr></thead>
+        <tbody>
+          @for (app of filteredApplications(); track app.applicationId) {
+            <tr>
+              <td>{{ app.applicationId }}</td>
+              <td>{{ app.loanType }}</td>
+              <td>{{ app.loanAmount | number:'1.2-2' }}</td>
+              <td><span [class]="statusClass(app.status)">{{ statusText(app.status) }}</span></td>
+              <td>
+                <div class="mini-progress">
+                  <span [style.width.%]="timelineFor(app).progress"></span>
+                </div>
+                <small class="text-muted">{{ timelineFor(app).progress }}%</small>
+              </td>
+              <td>
+                <div class="d-flex flex-wrap gap-2">
+                  <button class="btn btn-sm btn-outline-primary" type="button" (click)="continueApplication(app)">
+                    {{ continueLabel(app) }}
+                  </button>
+                  @if (canWithdraw(app)) {
+                    <button class="btn btn-sm btn-outline-danger" type="button" (click)="withdrawApplication(app)"
+                      [disabled]="withdrawingId() === app.applicationId">
+                      {{ withdrawingId() === app.applicationId ? 'Updating...' : withdrawLabel(app) }}
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+      @if (filteredApplications().length === 0) {
+        <div class="empty-state mt-3">
+          <i class="bi bi-funnel"></i>
+          <strong>No applications in this status</strong>
+          <span class="small">Select a different status filter.</span>
+        </div>
+      }
+    }
+  </div>
+
+  @if (selectedApplication(); as app) {
+    <div class="data-card mb-4">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <div>
+          <h5 class="fw-bold mb-1">Loan Journey Timeline</h5>
+          <div class="small text-muted">Application #{{ app.applicationId }} - {{ app.loanType }}</div>
+        </div>
+        <span class="sla-badge" [class.sla-overdue]="timelineFor(app).sla === 'Overdue'"
+          [class.sla-soon]="timelineFor(app).sla === 'Due Soon'"
+          [class.sla-closed]="timelineFor(app).sla === 'Closed'">
+          {{ timelineFor(app).sla }} | {{ timelineFor(app).ageDays }} day(s)
+        </span>
+      </div>
+      <div class="journey-timeline">
+        @for (step of timelineFor(app).steps; track step.label) {
+          <div class="journey-step" [class.completed]="step.state === 'completed'"
+            [class.current]="step.state === 'current'" [class.blocked]="step.state === 'blocked'"
+            [class.actionable]="step.routeKey === 'collateral' || step.routeKey === 'documents'"
+            (click)="continueApplication(app)">
+            <div class="journey-marker"><i class="bi bi-check"></i></div>
+            <div>
+              <strong>{{ step.label }}</strong>
+              <span>{{ step.detail }}</span>
+            </div>
+          </div>
+        }
+      </div>
+      <div class="soft-panel mt-3 small">
+        <strong>Next action:</strong> {{ timelineFor(app).nextAction }}
+        @if (canContinue(app)) {
+          <button class="btn btn-sm btn-primary ms-2" type="button" (click)="continueApplication(app)">
+            {{ continueLabel(app) }}
+          </button>
+        }
+        @if (app.status === 'REJECTED' && canWithdraw(app)) {
+          <button class="btn btn-sm btn-outline-danger ms-2" type="button" (click)="withdrawApplication(app)"
+            [disabled]="withdrawingId() === app.applicationId">
+            {{ withdrawingId() === app.applicationId ? 'Updating...' : 'Clear from Pipeline' }}
+          </button>
+        }
+      </div>
+      @if (app.status === 'REJECTED') {
+        <div class="alert alert-danger py-2 small mt-3 mb-0">
+          <strong>Credit decision:</strong>
+          This application was rejected during officer review
+          @if (app.officerCreditScore) {
+            <span> with score {{ app.officerCreditScore }}</span>
+          }.
+          @if (app.officerAssessmentNotes) {
+            <span> Notes: {{ app.officerAssessmentNotes }}</span>
+          }
+        </div>
+      }
+      @if (intelligenceFor(app); as intel) {
+        <div class="credit-intel mt-3">
+          <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <div>
+              <h6 class="fw-bold mb-1"><i class="bi bi-cpu me-1"></i>Credit Intelligence</h6>
+              <div class="small text-muted">{{ intel.summary }}</div>
+            </div>
+            <span class="risk-badge" [class.risk-low]="intel.riskBand === 'Low'"
+              [class.risk-moderate]="intel.riskBand === 'Moderate'" [class.risk-high]="intel.riskBand === 'High'">
+              {{ intel.riskBand }} Risk
+            </span>
+          </div>
+          <div class="intel-grid">
+            <div><span>Exposure</span><strong>{{ intel.exposureAmount | number:'1.2-2' }}</strong></div>
+            <div><span>Tenure Risk</span><strong>{{ intel.tenureRisk }}</strong></div>
+            <div><span>Documents Added</span><strong>{{ intel.documentReadiness }}</strong></div>
+            <div><span>Recommendation</span><strong>{{ intel.recommendation }}</strong></div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <div class="section-header">
+    <div>
+      <h5>Active Loans</h5>
+      <span>Approved loan accounts and repayment actions.</span>
+    </div>
+  </div>
+  <div class="data-card">
+    @if (approvedLoans().length === 0) {
+      <div class="empty-state">
+        <i class="bi bi-cash-coin"></i>
+        <strong>No active loan accounts</strong>
+        <span class="small">Approved and disbursed loans will show here.</span>
+      </div>
+    } @else {
+      <table class="table table-sm mb-0">
+        <thead><tr><th>Account</th><th>Principal</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody>
+          @for (loan of approvedLoans(); track loan.id) {
+            <tr>
+              <td>{{ loan.accountNumber }}</td>
+              <td>{{ loan.principalAmount | number:'1.2-2' }}</td>
+              <td><span [class]="statusClass(loan.status)">{{ statusText(loan.status) }}</span></td>
+              <td>
+                <a class="btn btn-sm btn-outline-primary" [routerLink]="['/customer/dashboard/loan/repay', loan.id]">
+                  Repay Instalment
+                </a>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+
+@if (pendingWithdrawApp(); as app) {
+  <div class="confirm-backdrop" role="dialog" aria-modal="true">
+    <div class="confirm-dialog">
+      <h6 class="fw-bold mb-2">{{ app.status === 'REJECTED' ? 'Clear rejected application?' : 'Withdraw application?' }}</h6>
+      <p class="small text-muted mb-3">
+        Application #{{ app.applicationId }} will be removed from your active pipeline. This action cannot be undone.
+      </p>
+      <div class="d-flex justify-content-end gap-2">
+        <button class="btn btn-sm btn-outline-secondary" type="button" (click)="cancelWithdraw()">Cancel</button>
+        <button class="btn btn-sm btn-danger" type="button" (click)="confirmWithdraw()" [disabled]="withdrawingId() === app.applicationId">
+          {{ withdrawingId() === app.applicationId ? 'Updating...' : 'Confirm' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+</div>

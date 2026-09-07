@@ -1,0 +1,65 @@
+<nav class="navbar navbar-dark bg-dark sticky-top">
+  <div class="container d-flex justify-content-between align-items-center">
+    <span class="navbar-brand mb-0 fw-bold"><i class="bi bi-shield-check me-2"></i> Collateral</span>
+    <div class="d-flex gap-2 align-items-center">
+      <a class="btn btn-sm btn-outline-light" [routerLink]="['/customer/dashboard', customerId]">
+        <i class="bi bi-arrow-left me-1"></i>Dashboard
+      </a>
+      <span class="badge bg-light text-dark">Application #{{ applicationId }}</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container page-shell" style="max-width: 760px;">
+  <div class="mb-3">
+    <h4 class="fw-bold mb-1">Declare Supporting Collateral</h4>
+    <p class="text-muted small mb-0">Step 2 of 3: asset details and collateral proof</p>
+  </div>
+
+  <div class="card p-4">
+    <div class="soft-panel small mb-3">
+      <strong>Required here:</strong> upload one collateral proof document such as title deed, equipment invoice,
+      stock statement, lien certificate, or security holding statement.
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="mb-3">
+        <label class="form-label">Collateral Type</label>
+        <select class="form-select" formControlName="collateralType">
+          <option value="REAL_ESTATE">Real Estate</option>
+          <option value="EQUIPMENT">Equipment / Machinery</option>
+          <option value="INVENTORY">Inventory / Stock</option>
+          <option value="SECURITIES">Securities / Bonds</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Estimated Value *</label>
+        <input type="number" class="form-control" formControlName="estimatedValue" />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Asset Reference Number *</label>
+        <input class="form-control" formControlName="assetReferenceNumber" />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Description</label>
+        <textarea class="form-control" rows="2" formControlName="description"></textarea>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Collateral Proof Document *</label>
+        <input type="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+          (change)="onProofSelected($event)" />
+        <div class="form-text text-muted">Accepted: PDF, JPG, PNG. Maximum size: 5MB.</div>
+        @if (fileName()) {
+          <div class="document-check mt-2">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>{{ fileName() }}</span>
+          </div>
+        }
+      </div>
+      @if (error()) { <div class="alert alert-danger py-2">{{ error() }}</div> }
+      <button type="submit" class="btn btn-primary" [disabled]="form.invalid || !collateralProofFile || loading()">
+        <i class="bi bi-arrow-right-circle me-1"></i> {{ loading() ? 'Saving...' : 'Continue to Documents' }}
+      </button>
+    </form>
+  </div>
+</div>

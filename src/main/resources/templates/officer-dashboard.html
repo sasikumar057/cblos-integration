@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CBLOS - Officer Underwriting Workdesk</title>
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+	rel="stylesheet">
+<style>
+body {
+	background-color: #f4f6f9;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+		sans-serif;
+}
+
+.officer-navbar {
+	background-color: #0d1b2a;
+	border-bottom: 3px solid #00b4d8;
+}
+
+.workdesk-card {
+	border: none;
+	border-radius: 8px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.pipeline-table tbody tr {
+	cursor: pointer;
+	transition: background-color 0.15s;
+}
+
+.pipeline-table tbody tr:hover {
+	background-color: #f1f5f9;
+}
+
+.pipeline-table tbody tr.table-active {
+	background-color: #e2e8f0;
+	border-left: 4px solid #0d6efd;
+}
+
+.assessment-panel {
+	background-color: #fff;
+	border-radius: 8px;
+	border-left: 4px solid #0d6efd;
+}
+
+.file-badge {
+	font-size: 0.8rem;
+	border-radius: 4px;
+	background-color: #f8f9fa;
+	border: 1px solid #dee2e6;
+}
+
+/* 🟢 Smooth hover transitions for interactive utility logout toggles */
+.btn-nav-logout {
+	background: transparent;
+	border: 1px solid rgba(220, 53, 69, 0.4);
+	color: #ea868f;
+	font-weight: 600;
+	font-size: 0.75rem;
+	transition: all 0.2s ease-in-out;
+}
+.btn-nav-logout:hover {
+	background-color: #dc3545;
+	color: #ffffff;
+	border-color: #dc3545;
+	transform: translateY(-1px);
+}
+</style>
+</head>
+<body>
+
+	<!-- 🏛️ REGULATORY INTERNAL UNDERWRITING NAVBAR -->
+	<nav class="navbar navbar-dark officer-navbar sticky-top py-2 shadow-sm">
+		<div class="container-fluid px-4">
+			<a class="navbar-brand d-flex align-items-center" href="#"> <i
+				class="bi bi-shield-check text-info me-2 fs-4"></i> <span
+				class="fw-bold text-uppercase tracking-wider text-white"
+				style="font-size: 1.1rem;">CB-LOS Underwriting Workdesk</span>
+			</a>
+			
+			<!-- 🟢 UPDATED: Right Alignment Layout containing Profile Badges & Instant Logout Engine -->
+			<div class="d-flex align-items-center gap-3 text-light">
+				<span class="small text-muted"><i
+					class="bi bi-person-badge-fill text-info me-1"></i> Role: <strong
+					class="text-white">LOAN_OFFICER</strong></span> 
+				<span class="border-start border-secondary h-25 mx-1"></span> 
+				<span class="small text-muted">Active Officer:</span> 
+				<span class="fw-bold text-info" th:text="${officerName}">Rajesh Kumar</span>
+				
+				<!-- Secure Spring Security Post Trigger for Session Disconnects -->
+				<form th:action="@{/logout}" method="POST" class="m-0 p-0 ms-2">
+					<button type="submit" class="btn btn-sm btn-nav-logout px-3 py-1.5 rounded text-uppercase tracking-wide shadow-sm">
+						<i class="bi bi-box-arrow-right me-1"></i> Sign Out
+					</button>
+				</form>
+			</div>
+		</div>
+	</nav>
+
+	<div class="container-fluid px-4 my-4">
+
+		<div class="row g-3 mb-4">
+			<div class="col-md-3">
+				<div class="card workdesk-card p-3 bg-white text-dark">
+					<div class="d-flex justify-content-between align-items-center">
+						<div>
+							<h6 class="text-uppercase text-muted small fw-bold mb-1">Active
+								Queue Count</h6>
+							<h3 class="fw-bold mb-0 text-primary"
+								th:text="${activeQueueCount}">1</h3>
+						</div>
+						<i class="bi bi-briefcase-fill text-primary-subtle fs-1"></i>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="card workdesk-card p-3 bg-white text-dark">
+					<div class="d-flex justify-content-between align-items-center">
+						<div>
+							<h6 class="text-uppercase text-muted small fw-bold mb-1">Escalated
+								This Week</h6>
+							<h3 class="fw-bold mb-0 text-success">14</h3>
+						</div>
+						<i class="bi bi-box-arrow-up text-success-subtle fs-1"></i>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="card workdesk-card p-3 bg-white text-dark">
+					<div class="d-flex justify-content-between align-items-center">
+						<div>
+							<h6 class="text-uppercase text-muted small fw-bold mb-1">Risk
+								Breaches Halted</h6>
+							<h3 class="fw-bold mb-0 text-danger">3</h3>
+						</div>
+						<i class="bi bi-exclamation-octagon-fill text-danger-subtle fs-1"></i>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="card workdesk-card p-3 bg-white text-dark">
+					<div class="d-flex justify-content-between align-items-center">
+						<div>
+							<h6 class="text-uppercase text-muted small fw-bold mb-1">Avg
+								Valuation SLA</h6>
+							<h3 class="fw-bold mb-0 text-dark">1.8 Days</h3>
+						</div>
+						<i class="bi bi-speedometer text-body-tertiary fs-1"></i>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row g-4">
+
+			<div class="col-lg-6">
+				<div class="card workdesk-card p-4 bg-white h-100">
+					<h5 class="fw-bold text-dark mb-3 border-bottom pb-2">
+						<i class="bi bi-list-task text-primary me-2"></i> Assigned
+						Underwriting Pipeline
+					</h5>
+
+					<div class="table-responsive">
+						<table class="table pipeline-table align-middle mb-0">
+							<thead class="table-light text-secondary small text-uppercase">
+								<tr>
+									<th>ID</th>
+									<th>Corporate Client</th>
+									<th>Facility / Product</th>
+									<th>Requested Principal</th>
+									<th>Queue Status</th>
+								</tr>
+							</thead>
+							<tbody class="small text-dark">
+								<tr th:if="${#lists.isEmpty(assignedLoans)}">
+									<td colspan="5" class="text-center py-4 text-muted italic">No
+										pipeline application items assigned.</td>
+								</tr>
+
+								<tr th:each="app : ${assignedLoans}"
+									th:classappend="${selectedApp != null && selectedApp.applicationId == app.applicationId} ? 'table-active' : ''"
+									th:onclick="|location.href='@{/customer/dashboard/officer/workdesk/{oId}(oId=${officerId}, selectedAppId=${app.applicationId})}'|">
+									<td><strong class="font-monospace text-secondary"
+										th:text="'#' + ${app.applicationId}">#12</strong></td>
+									<td><span class="fw-bold d-block"
+										th:text="${app.customer.companyName}">TechCorp Ltd</span> <span
+										class="text-muted small font-monospace"
+										th:text="'ID: ' + ${app.customer.id}">ID: 05</span></td>
+									<td><span class="badge bg-light text-dark border"
+										th:text="${app.loanType}">Working Capital</span></td>
+									<td class="fw-bold text-dark"
+										th:text="'₹' + ${#numbers.formatDecimal(app.loanAmount, 1, 'COMMA', 2, 'POINT')}">₹50,00,000.00</td>
+									<td><span
+										class="badge bg-warning-subtle text-warning-emphasis border border-warning text-dark px-2"
+										th:text="${app.status}">UNDER_REVIEW</span></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-lg-6">
+
+				<div th:if="${selectedApp == null}"
+					class="card workdesk-card p-5 bg-white text-center h-100 justify-content-center">
+					<i class="bi bi-clipboard2-check text-muted mb-3"
+						style="font-size: 3rem;"></i>
+					<h5 class="fw-bold text-dark">No File Selection Active</h5>
+					<p class="text-muted small">Select an application from the
+						pipeline worklist left panel to spin up evaluation rules engines.</p>
+				</div>
+
+				<div th:if="${selectedApp != null}" id="activeUnderwritingDeck"
+					class="card workdesk-card p-4 bg-white h-100">
+					<div
+						class="mb-3 border-bottom pb-2 d-flex justify-content-between align-items-center">
+						<h5 class="fw-bold text-dark mb-0">
+							<i class="bi bi-search text-info me-2"></i> Risk Analysis Brief
+						</h5>
+						<span class="badge bg-dark font-monospace px-2 py-1"
+							th:text="'APPLICATION ID #' + ${selectedApp.applicationId}">APPLICATION
+							ID #12</span>
+					</div>
+
+					<div class="row g-3 bg-light p-3 rounded mb-4 border small mx-0">
+						<div class="col-6">
+							<span class="text-muted d-block mb-1">Target Company</span> <strong
+								class="text-dark d-block"
+								th:text="${selectedApp.customer.companyName}">TechCorp
+								Ltd</strong>
+						</div>
+						<div class="col-6">
+							<span class="text-muted d-block mb-1">Requested Tenure
+								Horizon</span> <strong class="text-dark d-block"
+								th:text="${selectedApp.requestedTenureMonths} + ' Months'">24
+								Months</strong>
+						</div>
+						<div class="col-6">
+							<span class="text-muted d-block mb-1">Collateral Asset
+								Class</span> <strong class="text-dark d-block text-secondary">Commercial
+								Real Estate</strong>
+						</div>
+						<div class="col-6">
+							<span class="text-muted d-block mb-1">Estimated Asset
+								Evaluation</span> <strong class="text-dark d-block text-success"
+								th:text="'₹' + ${#numbers.formatDecimal(collateralValue, 1, 'COMMA', 2, 'POINT')}">₹75,00,000.00</strong>
+						</div>
+						<div class="col-12 border-top pt-2 mt-2">
+							<span class="text-muted me-2">Collateral Coverage Margin
+								Calculator:</span> <span class="badge px-2 py-1"
+								th:classappend="${marginPassed} ? 'bg-success border border-success' : 'bg-danger border border-danger'"
+								th:text="${coverageMargin} + '% ' + (${marginPassed} ? '(PASSED)' : '(FAIL: SHORT)')">150%
+								(PASSED)</span>
+							<div class="form-text text-muted" style="font-size: 0.7rem;">Minimum
+								threshold compliance parameter set at &gt; 120% margin coverage
+								logic.</div>
+						</div>
+					</div>
+
+					<h6 class="fw-bold text-secondary small text-uppercase mb-2">
+						<i class="bi bi-file-earmark-medical-fill text-primary"></i>
+						Document Verification Viewport
+					</h6>
+
+					<div class="p-3 border rounded bg-white mb-4 shadow-inner">
+
+						<div th:if="${activeDoc != null}">
+							<div
+								class="d-flex justify-content-between align-items-center file-badge p-2 mb-3 bg-light">
+								<div class="d-flex align-items-center">
+									<i class="bi bi-file-earmark-pdf-fill text-danger fs-5 me-2"></i>
+									<span class="small fw-bold text-dark font-monospace"
+										th:text="${activeDoc.fileName}">Verification_File_Payload.pdf</span>
+								</div>
+								<a
+									th:href="@{/customer/dashboard/officer/view/{id}(id=${activeDoc.documentId})}"
+									target="_blank" class="btn btn-outline-dark btn-xs px-2 py-0"
+									style="font-size: 0.75rem;"> <i
+									class="bi bi-box-arrow-up-right"></i> Open External Tab
+								</a>
+							</div>
+
+							<div class="ratio ratio-4x3 border rounded bg-light"
+								style="min-height: 400px;">
+								<iframe
+									th:src="@{/customer/dashboard/officer/view/{id}(id=${activeDoc.documentId})}"
+									type="application/pdf" width="100%" height="100%"
+									allowfullscreen>
+									<p class="text-muted small p-3 text-center">Your browser
+										configuration does not support inline iframes. Please click
+										"Open External Tab" up above to view the application
+										documentation ledger file.</p>
+								</iframe>
+							</div>
+						</div>
+
+						<div th:if="${activeDoc == null}"
+							class="p-4 text-center text-muted bg-light border border-dashed rounded">
+							<i class="bi bi-file-earmark-x text-secondary fs-3 d-block mb-2"></i>
+							<span class="small fw-bold text-dark d-block">No Active
+								Document Attachment Found</span> <span class="text-muted d-block small"
+								style="font-size: 0.7rem;"> The corporate user hasn't
+								transmitted verification document vouchers for this specific
+								application workspace folder yet. </span>
+						</div>
+
+					</div>
+
+					<h6 class="fw-bold text-secondary small text-uppercase mb-2">
+						<i class="bi bi-calculator-fill text-warning"></i> Credit Score
+						Assessment Input
+					</h6>
+					<div class="assessment-panel p-3 border rounded shadow-sm bg-light">
+
+						<form th:action="@{/customer/dashboard/officer/evaluate}"
+							method="POST">
+							<input type="hidden" name="applicationId"
+								th:value="${selectedApp.applicationId}">
+
+							<div class="mb-3">
+								<label for="creditScore"
+									class="form-label small fw-bold text-muted mb-1">Evaluated
+									Business Credit Score Value (300 - 850) *</label> <input type="number"
+									id="creditScore" name="creditScore"
+									class="form-control form-control-sm font-monospace fw-bold"
+									style="max-width: 150px;" min="300" max="850" value="740"
+									required>
+								<div class="form-text text-muted" style="font-size: 0.7rem;">
+									<i class="bi bi-info-circle-fill text-danger-emphasis"></i>
+									Automatic Rule Exception: Scores below 600 trigger immediate
+									system rejection.
+								</div>
+							</div>
+
+							<div class="mb-3">
+								<label for="riskNotes"
+									class="form-label small fw-bold text-muted mb-1">Operational
+									Risk Assessment Decision Notes *</label>
+								<textarea id="riskNotes" name="riskNotes"
+									class="form-control form-control-sm" rows="3"
+									placeholder="Enter technical justification context arguments here..."
+									required>Vetted company financials. Collateral margin is highly secure. Recommend approval.</textarea>
+							</div>
+
+							<div class="d-flex justify-content-end gap-2 pt-2 border-top">
+								<button type="submit" name="actionOutcome" value="REJECTED"
+									class="btn btn-sm btn-danger fw-bold shadow-sm">
+									<i class="bi bi-x-octagon-fill me-1"></i> System Reject
+								</button>
+								<button type="submit" name="actionOutcome" value="ESCALATED"
+									class="btn btn-sm btn-success fw-bold shadow-sm">
+									<i class="bi bi-check-circle-fill me-1"></i> Recommend &
+									Escalate
+								</button>
+							</div>
+						</form>
+
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+	</div>
+	<script>
+        function loadApplicationStaticMock() {
+            document.getElementById('emptyDeckPrompt').classList.add('d-none');
+            document.getElementById('activeUnderwritingDeck').classList.remove('d-none');
+        }
+
+        function loadApplicationAnalysis(applicationId) {
+            fetch('/api/underwriting/application/' + applicationId)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('emptyDeckPrompt').classList.add('d-none');
+                    document.getElementById('activeUnderwritingDeck').classList.remove('d-none');
+                    
+                    document.getElementById('deckApplicationId').innerText = "APPLICATION ID #" + data.applicationId;
+                    document.getElementById('formApplicationId').value = data.applicationId;
+                    document.getElementById('deckCompanyName').innerText = data.companyName;
+                    document.getElementById('deckTenure').innerText = data.tenureMonths + " Months";
+                    document.getElementById('deckCollateralType').innerText = data.collateralType;
+                    document.getElementById('deckCollateralValue').innerText = "₹" + data.collateralValue.toLocaleString('en-IN');
+                    
+                    const margin = ((data.collateralValue / data.loanAmount) * 100).toFixed(0);
+                    const badge = document.getElementById('deckCoverageMargin');
+                    if (margin >= 120) {
+                        badge.innerText = margin + "% (PASSED)";
+                        badge.className = "badge bg-success border border-success px-2 py-1";
+                    } else {
+                        badge.innerText = margin + "% (FAIL: UNDER-COLLATERALIZED)";
+                        badge.className = "badge bg-danger border border-danger px-2 py-1";
+                    }
+                }).catch(err => console.error("Error retrieving asset package metadata specs:", err));
+        }
+    </script>
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

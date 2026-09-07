@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CBLOS - Application Submitted Successfully</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #f4f6f9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .success-card { max-width: 580px; border: none; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .status-badge { font-family: font-monospace; letter-spacing: 0.5px; }
+        .countdown-text { font-size: 0.8rem; }
+    </style>
+</head>
+<body class="d-flex align-items-center justify-content-center vh-100">
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 d-flex justify-content-center">
+                
+                <div class="card success-card p-4 p-md-5 text-center bg-white">
+                    <div class="mb-4">
+                        <i class="bi bi-check-circle-fill text-success" style="font-size: 4.5rem;"></i>
+                    </div>
+                    
+                    <h3 class="fw-bold text-dark mb-2">Loan Application Package Filed</h3>
+                    <p class="text-muted small px-lg-4">
+                        Your commercial line credit application alongside all verifying collateral document records have been securely locked into the core pipeline under status:
+                    </p>
+                    
+                    <div class="my-3">
+                        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-3 py-2 rounded-pill status-badge text-uppercase fw-bold">
+                            <i class="bi bi-clock-history me-1"></i> Underwriting Review
+                        </span>
+                    </div>
+
+                    <hr class="my-4 opacity-25">
+                    
+                    <p class="small text-secondary mb-4">
+                        The underwriting evaluation matrix routing mechanism has allocated your portfolio to an internal credit officer work queue for background analysis.
+                    </p>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-center mb-4">
+                        <a th:href="@{/customer/dashboard/{id}(id=${customerId})}" class="btn btn-primary fw-bold px-4 py-2 shadow-sm">
+                            <i class="bi bi-house-door-fill me-1"></i> Return to Home Dashboard
+                        </a>
+                    </div>
+
+                    <div class="text-muted countdown-text">
+                        <i class="bi bi-arrow-repeat spin"></i> Processing complete. Redirecting back to home console in <span id="countdownTimer" class="fw-bold text-primary">5</span> seconds...
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        // Inject the secure context variable parameters directly out of our Thymeleaf layout space
+        /*<![CDATA[*/
+        const customerId = /*[[${customerId}]]*/ 0;
+        /*]]>*/
+        
+        let secondsLeft = 5;
+        const countdownDisplay = document.getElementById('countdownTimer');
+
+        // Execute interval clock cycle updates every 1000 milliseconds
+        const countdownInterval = setInterval(() => {
+            secondsLeft--;
+            countdownDisplay.textContent = secondsLeft;
+            
+            if (secondsLeft <= 0) {
+                clearInterval(countdownInterval);
+                // Trigger programmatic route jump directly home
+                window.location.href = '/customer/dashboard/' + customerId;
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

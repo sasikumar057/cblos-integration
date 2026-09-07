@@ -1,0 +1,43 @@
+<nav class="navbar navbar-dark bg-dark sticky-top">
+  <div class="container d-flex justify-content-between align-items-center">
+    <span class="navbar-brand mb-0 fw-bold"><i class="bi bi-file-earmark-text me-2"></i> Loan Application</span>
+    <a class="btn btn-sm btn-outline-light" [routerLink]="['/customer/dashboard', customerId]">Dashboard</a>
+  </div>
+</nav>
+
+<div class="container page-shell" style="max-width: 760px;">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div>
+      <h4 class="fw-bold mb-1">Request Credit Facility</h4>
+      <p class="text-muted small mb-0">Step 1 of 3: application details</p>
+    </div>
+    <span class="badge bg-primary-subtle text-primary">{{ productType }}</span>
+  </div>
+
+  <div class="card p-4">
+    @if (product(); as p) {
+      <div class="alert alert-info py-2 small">
+        Amount range: {{ p.minLoanAmount }} - {{ p.maxLoanAmount }} |
+        Tenure range: {{ p.minTenureMonths }} - {{ p.maxTenureMonths }} months
+      </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="mb-3">
+        <label class="form-label">Loan Amount *</label>
+        <input type="number" class="form-control" formControlName="loanAmount" />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Tenure (Months) *</label>
+        <input type="number" class="form-control" formControlName="requestedTenureMonths" />
+      </div>
+      @if (error()) { <div class="alert alert-danger py-2">{{ error() }}</div> }
+      <div class="d-flex flex-wrap gap-2">
+        <button type="submit" class="btn btn-primary" [disabled]="form.invalid">
+          <i class="bi bi-arrow-right-circle me-1"></i> Continue to Collateral
+        </button>
+        <a class="btn btn-outline-secondary" [routerLink]="['/customer/dashboard', customerId]">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
