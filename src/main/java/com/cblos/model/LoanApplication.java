@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "loan_application")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class LoanApplication {
 
     @Id
@@ -20,13 +20,13 @@ public class LoanApplication {
 
     @ManyToOne
     @JoinColumn(name = "officer_id")
-    private LoanOfficer loanOfficer; 
+    private LoanOfficer loanOfficer;
 
     @ManyToOne
     @JoinColumn(name = "loan_product_id")
-    private LoanProduct loanProduct; 
+    private LoanProduct loanProduct;
 
-    private String loanType; 
+    private String loanType;
     private BigDecimal loanAmount;
     private String status;
     private LocalDate submissionDate;
@@ -38,40 +38,121 @@ public class LoanApplication {
     private String officerAssessmentNotes;
 
     @Column(name = "requested_tenure_months")
-    private Integer requestedTenureMonths; 
+    private Integer requestedTenureMonths;
 
-    public LoanApplication() {}
+    @Column(name = "Salesforce_LoanApplicatin_id", length = 18)
+    private String salesforceLoanApplicationId;
 
-    public Integer getApplicationId() { return applicationId; }
-    public void setApplicationId(Integer applicationId) { this.applicationId = applicationId; }
+    @Enumerated(EnumType.STRING)
+    @Column(name = "salesforce_sync_status", nullable = false)
+    private SalesforceSyncStatus salesforceSyncStatus = SalesforceSyncStatus.NOT_STARTED;
 
-    public CorporateCustomer getCustomer() { return customer; }
-    public void setCustomer(CorporateCustomer customer) { this.customer = customer; }
+    public LoanApplication() {
+    }
 
-    public LoanOfficer getLoanOfficer() { return loanOfficer; }
-    public void setLoanOfficer(LoanOfficer loanOfficer) { this.loanOfficer = loanOfficer; }
+    public Integer getApplicationId() {
+        return applicationId;
+    }
 
-    public String getLoanType() { return loanType; }
-    public void setLoanType(String loanType) { this.loanType = loanType; }
+    public void setApplicationId(Integer applicationId) {
+        this.applicationId = applicationId;
+    }
 
-    public BigDecimal getLoanAmount() { return loanAmount; }
-    public void setLoanAmount(BigDecimal loanAmount) { this.loanAmount = loanAmount; }
+    public CorporateCustomer getCustomer() {
+        return customer;
+    }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public void setCustomer(CorporateCustomer customer) {
+        this.customer = customer;
+    }
 
-    public LocalDate getSubmissionDate() { return submissionDate; }
-    public void setSubmissionDate(LocalDate submissionDate) { this.submissionDate = submissionDate; }
+    public LoanOfficer getLoanOfficer() {
+        return loanOfficer;
+    }
 
-    public LoanProduct getLoanProduct() { return loanProduct; }
-    public void setLoanProduct(LoanProduct loanProduct) { this.loanProduct = loanProduct; }
+    public void setLoanOfficer(LoanOfficer loanOfficer) {
+        this.loanOfficer = loanOfficer;
+    }
 
-    public Integer getRequestedTenureMonths() { return requestedTenureMonths; }
-    public void setRequestedTenureMonths(Integer requestedTenureMonths) { this.requestedTenureMonths = requestedTenureMonths; }
+    public String getLoanType() {
+        return loanType;
+    }
 
-    public Integer getOfficerCreditScore() { return officerCreditScore; }
-    public void setOfficerCreditScore(Integer officerCreditScore) { this.officerCreditScore = officerCreditScore; }
+    public void setLoanType(String loanType) {
+        this.loanType = loanType;
+    }
 
-    public String getOfficerAssessmentNotes() { return officerAssessmentNotes; }
-    public void setOfficerAssessmentNotes(String officerAssessmentNotes) { this.officerAssessmentNotes = officerAssessmentNotes; }
+    public BigDecimal getLoanAmount() {
+        return loanAmount;
+    }
+
+    public void setLoanAmount(BigDecimal loanAmount) {
+        this.loanAmount = loanAmount;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public LocalDate getSubmissionDate() {
+        return submissionDate;
+    }
+
+    public void setSubmissionDate(LocalDate submissionDate) {
+        this.submissionDate = submissionDate;
+    }
+
+    public LoanProduct getLoanProduct() {
+        return loanProduct;
+    }
+
+    public void setLoanProduct(LoanProduct loanProduct) {
+        this.loanProduct = loanProduct;
+    }
+
+    public Integer getRequestedTenureMonths() {
+        return requestedTenureMonths;
+    }
+
+    public void setRequestedTenureMonths(Integer requestedTenureMonths) {
+        this.requestedTenureMonths = requestedTenureMonths;
+    }
+
+    public Integer getOfficerCreditScore() {
+        return officerCreditScore;
+    }
+
+    public void setOfficerCreditScore(Integer officerCreditScore) {
+        this.officerCreditScore = officerCreditScore;
+    }
+
+    public String getOfficerAssessmentNotes() {
+        return officerAssessmentNotes;
+    }
+
+    public void setOfficerAssessmentNotes(String officerAssessmentNotes) {
+        this.officerAssessmentNotes = officerAssessmentNotes;
+    }
+
+    public String getsalesforceLoanApplicationId() {
+        return salesforceLoanApplicationId;
+    }
+
+    public void setsalesforceLoanApplicationId(String salesforceLoanApplicationId) {
+        this.salesforceLoanApplicationId = salesforceLoanApplicationId;
+    }
+
+    public void setSalesforceSyncStatus(
+            SalesforceSyncStatus salesforceSyncStatus) {
+
+        this.salesforceSyncStatus = salesforceSyncStatus;
+    }
+
+    public SalesforceSyncStatus getSalesforceSyncStatus() {
+        return salesforceSyncStatus;
+    }
 }

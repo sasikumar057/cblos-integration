@@ -54,7 +54,7 @@ registrationForm = this.fb.group({
 
   phoneNumber: [''],
 
-  industryType: [''],
+  industryType: ['', Validators.required],
 
   tempRegistrationPassword: [
     '',
