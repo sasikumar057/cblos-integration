@@ -75,6 +75,7 @@ public class DocumentService {
         Document savedDocument = documentRepository.save(doc);
 
         reconcileLoanDocumentPackage(application.getApplicationId());
+        
 
         return savedDocument;
     }

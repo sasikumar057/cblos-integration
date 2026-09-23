@@ -4,13 +4,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record SalesforceAccountResponse(
 
-        @JsonProperty("Id") String id,
+                @JsonProperty("Id") String id,
 
-        @JsonProperty("Name") String name,
+                @JsonProperty("Name") String name,
 
-        @JsonProperty("Phone") String phone,
+                @JsonProperty("Phone") String phone,
 
-        @JsonProperty("CBLOS_Customer_ID__c") String cblosCustomerId
+                @JsonProperty("CBLOS_Customer_ID__c") String cblosCustomerId
 
 ) {
 }
