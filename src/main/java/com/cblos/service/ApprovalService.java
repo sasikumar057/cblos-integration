@@ -20,16 +20,16 @@ public class ApprovalService {
 
     @Autowired
     private LoanApplicationRepository loanRepository;
-    
+
     @Autowired
     private LoanOfficerRepository officerRepository;
-    
+
     @Autowired
     private LoanAccountRepository accountRepository;
 
     @Autowired
     private DisbursementService disbursementService;
-    
+
     @Autowired
     private CreditAssessmentRepository assessmentRepository;
 
@@ -42,7 +42,8 @@ public class ApprovalService {
     @Autowired
     private AccessControlService accessControl;
 
-    public Approval submitApproval(Integer applicationId, Integer approverId, String level, String status, String comments) {
+    public Approval submitApproval(Integer applicationId, Integer approverId, String level, String status,
+            String comments) {
 
         LoanApplication application = loanRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Loan application not found"));
@@ -58,7 +59,8 @@ public class ApprovalService {
             }
 
             CreditAssessment assessment = assessmentRepository.findByLoanApplication_ApplicationId(applicationId)
-                    .orElseThrow(() -> new RuntimeException("Validation Failed: Cannot approve without a Credit Assessment."));
+                    .orElseThrow(() -> new RuntimeException(
+                            "Validation Failed: Cannot approve without a Credit Assessment."));
 
             List<Collateral> collaterals = collateralRepository.findByLoanApplication_ApplicationId(applicationId);
             if (collaterals.isEmpty()) {
@@ -77,7 +79,7 @@ public class ApprovalService {
         } else {
             application.setStatus("UNDER_REVIEW");
         }
-        
+
         loanRepository.save(application);
 
         Approval approval = new Approval();
@@ -108,14 +110,14 @@ public class ApprovalService {
         String role = application.getLoanOfficer().getRole();
         Integer approverId = accessControl.getCurrentOfficerId();
         if (!"MANAGER".equalsIgnoreCase(role)) {
-        	throw new IllegalStateException(
-        			"Loan Manager can only Approve the Loan");
+            throw new IllegalStateException(
+                    "Loan Manager can only Approve the Loan");
         }
         Approval result = submitApproval(id, approverId, role, status, comments);
-        
+
         if ("Approved".equalsIgnoreCase(status)) {
             LoanApplication app = result.getLoanApplication();
-            
+
             LoanAccount account = new LoanAccount();
             account.setCustomer(app.getCustomer());
             account.setLoanApplication(app);
@@ -123,8 +125,8 @@ public class ApprovalService {
             account.setPrincipalAmount(app.getLoanAmount());
             account.setStatus("Active");
             account.setOpeningDate(LocalDate.now());
-            account.setInterestRate(5.5); 
-            
+            account.setInterestRate(5.5);
+
             LoanAccount savedAccount = accountRepository.save(account);
             disbursementService.scheduleDisbursement(savedAccount);
         }

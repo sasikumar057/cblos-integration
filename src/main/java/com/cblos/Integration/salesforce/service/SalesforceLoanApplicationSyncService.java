@@ -7,6 +7,7 @@ import com.cblos.Integration.salesforce.dto.SalesforceLoanApplicationResponse;
 import com.cblos.Integration.salesforce.dto.SalesforceLoanApplicationRequest;
 import com.cblos.model.LoanApplication;
 import com.cblos.model.SalesforceSyncStatus;
+import java.time.LocalDate;
 
 @Service
 public class SalesforceLoanApplicationSyncService {
@@ -28,6 +29,8 @@ public class SalesforceLoanApplicationSyncService {
                         "Loan Application not found: " + LoanApplicationId));
 
         LoanApplication.setSalesforceSyncStatus(SalesforceSyncStatus.IN_PROGRESS);
+        LoanApplication.setSalesforceSyncError(null);
+        LoanApplication.setSalesforceLastSyncAt(java.time.LocalDate.now());
         loanApplicationRepository.save(LoanApplication);
 
         try {
@@ -35,39 +38,27 @@ public class SalesforceLoanApplicationSyncService {
                     LoanApplication.getLoanAmount(),
                     LoanApplication.getRequestedTenureMonths(),
                     LoanApplication.getLoanProduct().getProductName(),
-                    LoanApplication.getCustomer().getSalesforceAccountId());
+                    LoanApplication.getCustomer().getSalesforceAccountId(),
+                    LoanApplication.getStatus(),
+                    LoanApplication.getSubmissionDate());
 
             SalesforceLoanApplicationResponse LoanApplicationResponse = salesforceLoanApplicationClient
                     .upsertLoanApplication(LoanApplication.getApplicationId(), LoanApplicationRequest);
 
             LoanApplication.setsalesforceLoanApplicationId(LoanApplicationResponse.id());
             LoanApplication.setSalesforceSyncStatus(SalesforceSyncStatus.SUCCESS);
+            LoanApplication.setSalesforceLastSyncAt(LocalDate.now());
+            LoanApplication.setSalesforceSyncError(null);
             loanApplicationRepository.save(LoanApplication);
             return LoanApplicationResponse;
 
         } catch (Exception exception) {
             LoanApplication.setSalesforceSyncStatus(SalesforceSyncStatus.FAILED);
+            LoanApplication.setSalesforceSyncError(exception.getMessage());
+            LoanApplication.setSalesforceLastSyncAt(LocalDate.now());
             loanApplicationRepository.save(LoanApplication);
             throw new IllegalStateException("Salesforce Loan Application sync failed.", exception);
         }
-    }
-
-    private String createSafeErrorMessage(
-            Exception exception) {
-
-        String message = exception.getMessage();
-
-        if (message == null || message.isBlank()) {
-            return "Salesforce Account synchronization failed.";
-        }
-
-        /*
-         * The database column is limited to 2000 characters.
-         * We store only a short message, not tokens or full payloads.
-         */
-        return message.length() > 1900
-                ? message.substring(0, 1900)
-                : message;
     }
 
 }

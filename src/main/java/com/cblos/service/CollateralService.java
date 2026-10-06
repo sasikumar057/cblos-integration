@@ -6,9 +6,12 @@ import com.cblos.repository.CollateralRepository;
 import com.cblos.repository.LoanApplicationRepository;
 import com.cblos.security.AccessControlService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
+import org.springframework.context.ApplicationEventPublisher;
+import com.cblos.event.LoanApplicationSubmittedEvent;
 
 @Service
 public class CollateralService {
@@ -22,18 +25,23 @@ public class CollateralService {
     @Autowired
     private AccessControlService accessControl;
 
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
+
     public Collateral addCollateralToApplication(Integer applicationId, Collateral collateral) {
         accessControl.ensureCustomerOwnsApplication(applicationId);
-        
+
         LoanApplication app = loanRepository.findById(applicationId)
                 .orElseThrow(() -> new RuntimeException("Loan application not found with ID: " + applicationId));
-        
+
         if (collateral.getEstimatedValue() == null || collateral.getEstimatedValue().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Validation Failed: Collateral valuation must be a positive asset amount.");
+            throw new IllegalArgumentException(
+                    "Validation Failed: Collateral valuation must be a positive asset amount.");
         }
 
         if (collateral.getAssetReferenceNumber() == null || collateral.getAssetReferenceNumber().trim().isEmpty()) {
-            throw new IllegalArgumentException("Validation Failed: Legal Asset Registration/Reference number is mandatory.");
+            throw new IllegalArgumentException(
+                    "Validation Failed: Legal Asset Registration/Reference number is mandatory.");
         }
 
         collateral.setLoanApplication(app);
@@ -41,7 +49,7 @@ public class CollateralService {
         Collateral savedCollateral = collateralRepository.save(collateral);
 
         List<Collateral> allPledgedAssets = collateralRepository.findByLoanApplication_ApplicationId(applicationId);
-        
+
         BigDecimal totalCollateralValue = allPledgedAssets.stream()
                 .map(Collateral::getEstimatedValue)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -50,15 +58,19 @@ public class CollateralService {
 
         BigDecimal minimumRequiredCollateral = requestedLoanAmount.multiply(BigDecimal.valueOf(1.20));
 
-        System.out.println("🔍 [CB-LOS Risk Engine] Loan Amount: ₹" + requestedLoanAmount 
+        System.out.println("🔍 [CB-LOS Risk Engine] Loan Amount: ₹" + requestedLoanAmount
                 + " | Current Cumulative Pledged Asset Value: ₹" + totalCollateralValue);
 
         if (totalCollateralValue.compareTo(minimumRequiredCollateral) < 0) {
-            System.out.println("Risk Alert: Pledged assets do not meet the bank's 120% security coverage threshold yet.");
+            System.out
+                    .println("Risk Alert: Pledged assets do not meet the bank's 120% security coverage threshold yet.");
         } else {
             System.out.println("Risk Safe: Collateral coverage ratio successfully clears the bank's safety threshold.");
         }
 
+        app.setStatus("DOCUMENT_PENDING");
+        loanRepository.save(app);
+        eventPublisher.publishEvent(new LoanApplicationSubmittedEvent(app.getApplicationId()));
         return savedCollateral;
     }
 

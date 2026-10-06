@@ -27,8 +27,12 @@ public class LoanApplication {
     private LoanProduct loanProduct;
 
     private String loanType;
+
     private BigDecimal loanAmount;
+
+    // @Enumerated(EnumType.STRING)
     private String status;
+
     private LocalDate submissionDate;
 
     @Column(name = "officer_credit_score")
@@ -46,6 +50,12 @@ public class LoanApplication {
     @Enumerated(EnumType.STRING)
     @Column(name = "salesforce_sync_status", nullable = false)
     private SalesforceSyncStatus salesforceSyncStatus = SalesforceSyncStatus.NOT_STARTED;
+
+    @Column(name = "salesforce_last_sync_at")
+    private LocalDate salesforceLastSyncAt;
+
+    @Column(name = "salesforce_sync_error", length = 2000)
+    private String salesforceSyncError;
 
     public LoanApplication() {
     }
@@ -154,5 +164,25 @@ public class LoanApplication {
 
     public SalesforceSyncStatus getSalesforceSyncStatus() {
         return salesforceSyncStatus;
+    }
+
+    public LocalDate getSalesforceLastSyncAt() {
+        return salesforceLastSyncAt;
+    }
+
+    public void setSalesforceLastSyncAt(
+            LocalDate salesforceLastSyncAt) {
+
+        this.salesforceLastSyncAt = salesforceLastSyncAt;
+    }
+
+    public String getSalesforceSyncError() {
+        return salesforceSyncError;
+    }
+
+    public void setSalesforceSyncError(
+            String salesforceSyncError) {
+
+        this.salesforceSyncError = salesforceSyncError;
     }
 }
