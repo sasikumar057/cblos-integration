@@ -8,10 +8,12 @@ import com.cblos.model.LoanOfficer;
 import com.cblos.repository.DocumentRepository;
 import com.cblos.repository.LoanOfficerRepository;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.context.ApplicationEventPublisher;
+import com.cblos.event.LoanApplicationSubmittedEvent;
+import com.cblos.model.LoanApplicationStatus;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -37,15 +39,19 @@ public class DocumentService {
 
     @Autowired
     private DocumentRepository documentRepository;
-    
+
     @Autowired
     private LoanOfficerRepository officerRepository;
-    
+
     @Autowired
     private com.cblos.repository.LoanApplicationRepository loanRepository;
 
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
+
     @Transactional
-    public Document uploadDocument(LoanApplication application, String type, String fileName, String fileType, byte[] data) {
+    public Document uploadDocument(LoanApplication application, String type, String fileName, String fileType,
+            byte[] data) {
         if (application == null || application.getApplicationId() == null) {
             throw new IllegalArgumentException("Loan application is required for document upload.");
         }
@@ -54,7 +60,8 @@ public class DocumentService {
         validateUpload(application, fileName, fileType, data);
 
         List<Document> existingDocs = documentRepository
-                .findByLoanApplication_ApplicationIdAndDocumentTypeIgnoreCaseOrderByUploadDateDesc(application.getApplicationId(), normalizedType);
+                .findByLoanApplication_ApplicationIdAndDocumentTypeIgnoreCaseOrderByUploadDateDesc(
+                        application.getApplicationId(), normalizedType);
         Document doc = existingDocs.isEmpty() ? new Document() : existingDocs.get(0);
         if (existingDocs.size() > 1) {
             documentRepository.deleteAll(existingDocs.subList(1, existingDocs.size()));
@@ -65,17 +72,20 @@ public class DocumentService {
             doc.setCorporateCustomer(application.getCustomer());
         }
         doc.setDocumentType(normalizedType);
-        
+
         doc.setFileName(fileName);
         doc.setFileType(fileType);
-        doc.setFileData(data); 
-        
+        doc.setFileData(data);
+
         doc.setUploadDate(LocalDateTime.now());
-        
+
+        application.setStatus("SUBMITTED");
+
+        loanRepository.save(application);
+        eventPublisher.publishEvent(new LoanApplicationSubmittedEvent(application.getApplicationId()));
         Document savedDocument = documentRepository.save(doc);
 
         reconcileLoanDocumentPackage(application.getApplicationId());
-        
 
         return savedDocument;
     }
@@ -107,7 +117,8 @@ public class DocumentService {
     private String normalizeLoanDocumentType(String type) {
         String normalizedType = type == null ? "" : type.trim().toUpperCase(Locale.ROOT);
         if (!REQUIRED_LOAN_DOCUMENT_TYPES.contains(normalizedType)) {
-            throw new IllegalArgumentException("Invalid document type. Required package types are COLLATERAL_PROOF, TAX_RETURN, and BUSINESS_LICENSE.");
+            throw new IllegalArgumentException(
+                    "Invalid document type. Required package types are COLLATERAL_PROOF, TAX_RETURN, and BUSINESS_LICENSE.");
         }
         return normalizedType;
     }
@@ -115,7 +126,8 @@ public class DocumentService {
     private void validateUpload(LoanApplication application, String fileName, String fileType, byte[] data) {
         String status = application.getStatus() == null ? "" : application.getStatus().trim().toUpperCase(Locale.ROOT);
         if (Set.of("UNDER_REVIEW", "PENDING_MANAGER_APPROVAL", "APPROVED", "REJECTED").contains(status)) {
-            throw new IllegalStateException("Document package is already submitted for bank review and cannot be changed by the customer.");
+            throw new IllegalStateException(
+                    "Document package is already submitted for bank review and cannot be changed by the customer.");
         }
         if (fileName == null || fileName.isBlank()) {
             throw new IllegalArgumentException("File name is required.");
@@ -141,71 +153,71 @@ public class DocumentService {
         return uploadedTypes.containsAll(REQUIRED_LOAN_DOCUMENT_TYPES);
     }
 
- private void routeCompletedPackage(LoanApplication application) {
-    if (application == null) {
-        return;
-    }
-    if (application.getLoanOfficer() != null) {
-        application.setStatus("UNDER_REVIEW");
+    private void routeCompletedPackage(LoanApplication application) {
+        if (application == null) {
+            return;
+        }
+        if (application.getLoanOfficer() != null) {
+            application.setStatus("UNDER_REVIEW");
+            loanRepository.save(application);
+            return;
+        }
+        LoanOfficer availableOfficer = officerRepository.findLeastLoadedOfficer()
+                .orElse(null);
+
+        if (availableOfficer != null) {
+            application.setLoanOfficer(availableOfficer);
+            application.setStatus("UNDER_REVIEW");
+
+            availableOfficer.setActiveApplicationCount(availableOfficer.getActiveApplicationCount() + 1);
+            officerRepository.save(availableOfficer);
+
+            System.out.println("[LOS Router] Allocated App to: " + availableOfficer.getName()
+                    + " | New Workload: " + availableOfficer.getActiveApplicationCount());
+        } else {
+
+            System.out.println("[LOS Router] No available officers found. Routing to Shared Queue.");
+            application.setLoanOfficer(null);
+            application.setStatus("UNDER_REVIEW");
+        }
+
         loanRepository.save(application);
-        return;
-    }
-    LoanOfficer availableOfficer = officerRepository.findLeastLoadedOfficer()
-            .orElse(null);
-
-    if (availableOfficer != null) {
-        application.setLoanOfficer(availableOfficer);
-        application.setStatus("UNDER_REVIEW");
-        
-        availableOfficer.setActiveApplicationCount(availableOfficer.getActiveApplicationCount() + 1);
-        officerRepository.save(availableOfficer);
-
-        System.out.println("[LOS Router] Allocated App to: " + availableOfficer.getName()
-                + " | New Workload: " + availableOfficer.getActiveApplicationCount());
-    } else {
-       
-        System.out.println("[LOS Router] No available officers found. Routing to Shared Queue.");
-        application.setLoanOfficer(null);
-        application.setStatus("UNDER_REVIEW");
     }
 
-    loanRepository.save(application);
-}
-
- public Document uploadRegistrationDocument(CorporateCustomer customer, String type, String fileName, String fileType, byte[] data) {
+    public Document uploadRegistrationDocument(CorporateCustomer customer, String type, String fileName,
+            String fileType, byte[] data) {
         Document doc = new Document();
         doc.setCorporateCustomer(customer);
-        doc.setLoanApplication(null); 
-        doc.setDocumentType(type); 
-        
+        doc.setLoanApplication(null);
+        doc.setDocumentType(type);
+
         doc.setFileName(fileName);
         doc.setFileType(fileType);
         doc.setFileData(data);
-        
+
         doc.setUploadDate(LocalDateTime.now());
 
-        
         return documentRepository.save(doc);
     }
 
-    @Transactional(readOnly = true) 
+    @Transactional(readOnly = true)
     public List<Document> getDocumentsByLoan(Integer applicationId) {
         List<Document> docs = documentRepository.findByLoanApplicationApplicationId(applicationId);
-        
+
         System.out.println("[Database Engine] Inspecting Application Package Entry ID: " + applicationId);
         if (docs != null && !docs.isEmpty()) {
             for (Document d : docs) {
                 int byteLength = (d.getFileData() != null) ? d.getFileData().length : -1;
-                System.out.println("[Database Engine] Match Found! File: " + d.getFileName() 
+                System.out.println("[Database Engine] Match Found! File: " + d.getFileName()
                         + " | Target Column Size: " + byteLength + " bytes.");
             }
         } else {
             System.out.println("[Database Engine] Query returned absolute ZERO records for App ID: " + applicationId);
         }
-        
+
         return docs;
     }
-  
+
     public List<Document> getRegistrationDocumentsByCustomer(Integer customerId) {
         return documentRepository.findByCorporateCustomer_IdAndLoanApplicationIsNull(customerId);
     }
@@ -226,5 +238,5 @@ public class DocumentService {
         return documentRepository.findById(documentId)
                 .orElseThrow(() -> new RuntimeException("Document not found"));
     }
-    
+
 }

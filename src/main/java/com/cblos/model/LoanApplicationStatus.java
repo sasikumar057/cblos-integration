@@ -1,0 +1,24 @@
+package com.cblos.model;
+
+public enum LoanApplicationStatus {
+    SUBMITTED,
+
+    PENDING_OFFICER_ASSIGNMENT,
+
+    PENDING_OFFICER_REVIEW,
+
+    OFFICER_APPROVED,
+
+    PENDING_MANAGER_APPROVAL,
+
+    MANAGER_APPROVED,
+
+    PENDING_DISBURSEMENT,
+
+    DISBURSED,
+
+    ACTIVE,
+
+    CLOSED
+
+}

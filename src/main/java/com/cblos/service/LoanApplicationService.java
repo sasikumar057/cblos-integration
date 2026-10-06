@@ -18,6 +18,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.cblos.event.LoanApplicationSubmittedEvent;
+import com.cblos.model.LoanApplicationStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -67,7 +68,7 @@ public class LoanApplicationService {
                 .orElseThrow(() -> new RuntimeException("Customer not found with ID: " + customerId));
         app.setCustomer(customer);
         app.setSubmissionDate(LocalDate.now());
-        app.setStatus("DOCUMENT_PENDING");
+        app.setStatus("COLLATERAL_PENDING");
         productRepository.findByProductName(app.getLoanType())
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Validation Failed: You must select a valid credit product from the catalog."));
